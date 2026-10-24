@@ -1,0 +1,49 @@
+@model IEnumerable<FinTrust.Web.Models.Persona>
+
+@{
+    ViewData["Title"] = "Personas";
+}
+
+<h1>Personas</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Registrar persona
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Documento</th>
+            <th>Nombres</th>
+            <th>Apellidos</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.DocumentoIdentidad</td>
+                <td>@item.Nombres</td>
+                <td>@item.Apellidos</td>
+                <td>@item.Telefono</td>
+                <td>@item.Correo</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.PersonaId">
+                        Editar
+                    </a> |
+                    <a asp-action="Details" asp-route-id="@item.PersonaId">
+                        Detalles
+                    </a> |
+                    <a asp-action="Delete" asp-route-id="@item.PersonaId">
+                        Eliminar
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
