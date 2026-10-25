@@ -1,0 +1,44 @@
+@model FinTrust.Web.Models.Socio
+
+@{
+    ViewData["Title"] = "Crear socio";
+}
+
+<h1>Crear socio</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="PersonaId" class="control-label"></label>
+                <input asp-for="PersonaId" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CodigoSocio" class="control-label"></label>
+                <input asp-for="CodigoSocio" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FechaIngreso" class="control-label"></label>
+                <input asp-for="FechaIngreso" type="date" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Estado" class="control-label"></label>
+                <input asp-for="Estado" class="form-control" />
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Crear" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Volver a la lista</a>
+</div>
