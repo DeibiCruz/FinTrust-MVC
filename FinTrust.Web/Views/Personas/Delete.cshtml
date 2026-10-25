@@ -1,10 +1,10 @@
 @model FinTrust.Web.Models.Persona
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Eliminar persona";
 }
 
-<h1>Delete</h1>
+<h1>Eliminar persona</h1>
 
 <h3>¿Está seguro de que desea eliminar esta persona?</h3>
 <div asp-validation-summary="All" class="text-danger"></div>
@@ -54,6 +54,6 @@
     <form asp-controller="Personas" asp-action="Delete" asp-route-id="@Model.PersonaId" method="post">
         <input type="hidden" name="id" value="@Model.PersonaId" />
         <input type="submit" value="Eliminar" class="btn btn-danger" />
-        <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Volver a la lista</a>
     </form>
 </div>

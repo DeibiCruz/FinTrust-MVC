@@ -13,13 +13,16 @@
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="form-group">
-                <label asp-for="PersonaId" class="control-label"></label>
-                <input asp-for="PersonaId" class="form-control" />
+                <label asp-for="PersonaId" class="control-label">Persona</label>
+                <select asp-for="PersonaId" asp-items="ViewBag.Personas" class="form-select" required>
+                    <option value="">Seleccionar persona</option>
+                </select>
+                <a asp-controller="Personas" asp-action="Create">Registrar una persona</a>
             </div>
 
             <div class="form-group">
                 <label asp-for="CodigoSocio" class="control-label"></label>
-                <input asp-for="CodigoSocio" class="form-control" />
+                <input asp-for="CodigoSocio" class="form-control" maxlength="25" required />
             </div>
 
             <div class="form-group">
@@ -29,7 +32,10 @@
 
             <div class="form-group">
                 <label asp-for="Estado" class="control-label"></label>
-                <input asp-for="Estado" class="form-control" />
+                <select asp-for="Estado" class="form-select">
+                    <option value="ACTIVO">Activo</option>
+                    <option value="INACTIVO">Inactivo</option>
+                </select>
             </div>
 
             <div class="form-group mt-3">

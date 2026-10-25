@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,10 +21,13 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-controller="Personas" asp-action="Index">Personas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Socios" asp-action="Index">Socios</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Cuentas" asp-action="Index">Cuentas</a>
@@ -36,6 +39,10 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @if (TempData["Mensaje"] is string mensaje)
+            {
+                <div class="alert alert-success" role="status">@mensaje</div>
+            }
             @RenderBody()
         </main>
     </div>

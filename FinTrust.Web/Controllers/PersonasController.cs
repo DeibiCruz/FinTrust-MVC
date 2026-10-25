@@ -54,12 +54,20 @@ public class PersonasController : Controller
     public async Task<IActionResult> Create(
         [Bind("DocumentoIdentidad,Nombres,Apellidos,Telefono,Correo")] Persona persona)
     {
+        await ValidarPersona(persona);
         if (ModelState.IsValid)
         {
-            _context.Personas.Add(persona);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _context.Personas.Add(persona);
+                await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Persona registrada correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "No se pudo guardar la persona. Comprueba que el documento no esté duplicado.");
+            }
         }
 
         return View(persona);
@@ -101,6 +109,7 @@ public class PersonasController : Controller
             return NotFound();
         }
 
+        await ValidarPersona(persona);
         if (ModelState.IsValid)
         {
             try
@@ -115,9 +124,16 @@ public class PersonasController : Controller
                     return NotFound();
                 }
 
-                throw;
+                ModelState.AddModelError("", "La persona cambió durante la edición. Recarga e inténtalo nuevamente.");
+                return View(persona);
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "No se pudo guardar la persona. Comprueba que el documento no esté duplicado.");
+                return View(persona);
             }
 
+            TempData["Mensaje"] = "Persona actualizada correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -175,6 +191,16 @@ public class PersonasController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    private async Task ValidarPersona(Persona persona)
+    {
+        persona.DocumentoIdentidad = persona.DocumentoIdentidad?.Trim()!;
+        persona.Nombres = persona.Nombres?.Trim()!;
+        persona.Apellidos = persona.Apellidos?.Trim()!;
+        if (!string.IsNullOrWhiteSpace(persona.DocumentoIdentidad)
+            && await _context.Personas.AnyAsync(p => p.DocumentoIdentidad == persona.DocumentoIdentidad && p.PersonaId != persona.PersonaId))
+            ModelState.AddModelError(nameof(Persona.DocumentoIdentidad), "El documento de identidad ya está registrado.");
+    }
+
     //Comprueba si una persona existe en la base de datos mediante su PersonaId
     //Lo utilizamos en Edit cuando Entity Framework Core detecta un conflicto de concurrencia
     private bool PersonaExists(int id)

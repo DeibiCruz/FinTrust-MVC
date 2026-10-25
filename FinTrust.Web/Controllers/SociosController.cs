@@ -1,8 +1,8 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinTrust.Web.Models;
 using FinTrust.Web.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 public class SociosController : Controller
 {
@@ -38,9 +38,10 @@ public class SociosController : Controller
     }
 
     // GET: SOCIOS/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return View();
+        await CargarPersonas();
+        return View(new Socio { FechaIngreso = DateOnly.FromDateTime(DateTime.Today), Estado = "ACTIVO" });
     }
 
     // POST: SOCIOS/Create
@@ -57,6 +58,7 @@ public class SociosController : Controller
             {
                 _context.Add(socio);
                 await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Socio registrado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -80,6 +82,7 @@ public class SociosController : Controller
         {
             return NotFound();
         }
+        await CargarPersonas(socio.PersonaId);
         return View(socio);
     }
 
@@ -111,7 +114,8 @@ public class SociosController : Controller
                 }
                 else
                 {
-                    throw;
+                    ModelState.AddModelError("", "El socio cambió durante la edición. Recarga e inténtalo nuevamente.");
+                    return View(socio);
                 }
             }
             catch (DbUpdateException)
@@ -119,6 +123,7 @@ public class SociosController : Controller
                 ModelState.AddModelError("", "No se pudo guardar. Verifica la persona, el código y el estado del socio.");
                 return View(socio);
             }
+            TempData["Mensaje"] = "Socio actualizado correctamente.";
             return RedirectToAction(nameof(Index));
         }
         return View(socio);
@@ -169,11 +174,13 @@ public class SociosController : Controller
 
     private async Task ValidarSocio(Socio socio)
     {
+        await CargarPersonas(socio.PersonaId);
+        socio.CodigoSocio = socio.CodigoSocio?.Trim()!;
         
         ModelState.Remove(nameof(Socio.Persona));
 
         if (!await _context.Personas.AnyAsync(p => p.PersonaId == socio.PersonaId))
-            ModelState.AddModelError(nameof(Socio.PersonaId), "Selecciona el ID de una persona existente.");
+            ModelState.AddModelError(nameof(Socio.PersonaId), "Selecciona una persona existente.");
 
         if (await _context.Socios.AnyAsync(s => s.PersonaId == socio.PersonaId && s.SocioId != socio.SocioId))
             ModelState.AddModelError(nameof(Socio.PersonaId), "Esta persona ya está registrada como socio.");
@@ -183,11 +190,21 @@ public class SociosController : Controller
         else if (await _context.Socios.AnyAsync(s => s.CodigoSocio == socio.CodigoSocio && s.SocioId != socio.SocioId))
             ModelState.AddModelError(nameof(Socio.CodigoSocio), "El código de socio ya existe.");
 
-        if (string.IsNullOrWhiteSpace(socio.Estado) || socio.Estado.Length > 15)
-            ModelState.AddModelError(nameof(Socio.Estado), "El estado es obligatorio y admite hasta 15 caracteres.");
+        if (socio.Estado != "ACTIVO" && socio.Estado != "INACTIVO")
+            ModelState.AddModelError(nameof(Socio.Estado), "Selecciona Activo o Inactivo.");
 
         if (socio.FechaIngreso == default)
             ModelState.AddModelError(nameof(Socio.FechaIngreso), "Ingresa una fecha válida.");
+    }
+
+    private async Task CargarPersonas(int? personaId = null)
+    {
+        var personas = await _context.Personas.AsNoTracking()
+            .Where(p => p.Socio == null || p.PersonaId == personaId)
+            .OrderBy(p => p.Apellidos).ThenBy(p => p.Nombres)
+            .Select(p => new { p.PersonaId, Nombre = p.DocumentoIdentidad + " - " + p.Nombres + " " + p.Apellidos })
+            .ToListAsync();
+        ViewBag.Personas = new SelectList(personas, "PersonaId", "Nombre", personaId);
     }
 
     private bool SocioExists(int socioid)
