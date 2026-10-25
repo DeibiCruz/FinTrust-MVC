@@ -1,0 +1,40 @@
+@model FinTrust.Web.Models.OperacionFinanciera
+
+@{
+    ViewData["Title"] = "Detalle de operación";
+    var socio = Model.SocioEjecutor is null
+        ? "Sin socio ejecutor"
+        : $"{Model.SocioEjecutor.CodigoSocio} - {Model.SocioEjecutor.Persona.Nombres} {Model.SocioEjecutor.Persona.Apellidos}";
+}
+
+<h1>Detalle de operación</h1>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">ID</dt>
+    <dd class="col-sm-9">@Model.OperacionId</dd>
+
+    <dt class="col-sm-3">Tipo de operación</dt>
+    <dd class="col-sm-9">@Model.TipoOperacion</dd>
+
+    <dt class="col-sm-3">Fecha y hora</dt>
+    <dd class="col-sm-9">@Model.FechaHora.ToString("dd/MM/yyyy HH:mm")</dd>
+
+    <dt class="col-sm-3">Monto</dt>
+    <dd class="col-sm-9">Bs @Model.Monto.ToString("N2")</dd>
+
+    <dt class="col-sm-3">Socio ejecutor</dt>
+    <dd class="col-sm-9">@socio</dd>
+
+    <dt class="col-sm-3">Referencia</dt>
+    <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Referencia) ? "-" : Model.Referencia)</dd>
+
+    <dt class="col-sm-3">Movimientos relacionados</dt>
+    <dd class="col-sm-9">@Model.MovimientoCuenta.Count</dd>
+
+    <dt class="col-sm-3">Pagos relacionados</dt>
+    <dd class="col-sm-9">@Model.PagoCuota.Count</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.OperacionId" class="btn btn-primary">Editar</a>
+<a asp-action="Index" class="btn btn-outline-secondary">Volver a la lista</a>

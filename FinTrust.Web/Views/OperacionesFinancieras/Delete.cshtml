@@ -1,0 +1,41 @@
+@model FinTrust.Web.Models.OperacionFinanciera
+
+@{
+    ViewData["Title"] = "Eliminar operación";
+    var socio = Model.SocioEjecutor is null
+        ? "Sin socio ejecutor"
+        : $"{Model.SocioEjecutor.CodigoSocio} - {Model.SocioEjecutor.Persona.Nombres} {Model.SocioEjecutor.Persona.Apellidos}";
+}
+
+<h1>Eliminar operación</h1>
+<div class="alert alert-warning">
+    Confirma que deseas eliminar esta operación. Esta acción no se puede deshacer.
+</div>
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<dl class="row">
+    <dt class="col-sm-3">ID</dt>
+    <dd class="col-sm-9">@Model.OperacionId</dd>
+
+    <dt class="col-sm-3">Tipo de operación</dt>
+    <dd class="col-sm-9">@Model.TipoOperacion</dd>
+
+    <dt class="col-sm-3">Fecha y hora</dt>
+    <dd class="col-sm-9">@Model.FechaHora.ToString("dd/MM/yyyy HH:mm")</dd>
+
+    <dt class="col-sm-3">Monto</dt>
+    <dd class="col-sm-9">Bs @Model.Monto.ToString("N2")</dd>
+
+    <dt class="col-sm-3">Socio ejecutor</dt>
+    <dd class="col-sm-9">@socio</dd>
+
+    <dt class="col-sm-3">Referencia</dt>
+    <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Referencia) ? "-" : Model.Referencia)</dd>
+</dl>
+
+<form asp-action="Delete" asp-route-id="@Model.OperacionId">
+    <input type="hidden" asp-for="OperacionId" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+</form>
