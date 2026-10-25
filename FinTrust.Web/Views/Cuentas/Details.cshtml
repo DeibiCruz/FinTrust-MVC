@@ -1,0 +1,80 @@
+@model FinTrust.Web.Models.Cuentum
+
+@{
+    ViewData["Title"] = "Detalles de la cuenta";
+}
+
+<h1>Detalles de la cuenta</h1>
+<dl class="row">
+    <dt class="col-sm-3">Número de cuenta</dt>
+    <dd class="col-sm-9">@Model.NumeroCuenta</dd>
+    <dt class="col-sm-3">Tipo</dt>
+    <dd class="col-sm-9">@Model.TipoCuenta</dd>
+    <dt class="col-sm-3">Moneda</dt>
+    <dd class="col-sm-9">@Model.Moneda</dd>
+    <dt class="col-sm-3">Saldo actual</dt>
+    <dd class="col-sm-9">@Model.SaldoActual.ToString("N2")</dd>
+    <dt class="col-sm-3">Fecha de apertura</dt>
+    <dd class="col-sm-9">@Model.FechaApertura.ToString("dd/MM/yyyy")</dd>
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+</dl>
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.CuentaId">Editar cuenta</a> |
+    <a asp-action="Delete" asp-route-id="@Model.CuentaId">Eliminar cuenta</a> |
+    <a asp-action="Index">Volver a la lista</a>
+</p>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<h2>Socios asociados</h2>
+@if (!Model.CuentaSocios.Any())
+{
+    <p>Esta cuenta todavía no tiene socios asociados.</p>
+}
+@foreach (var vinculo in Model.CuentaSocios.OrderBy(cs => cs.Socio.CodigoSocio))
+{
+    <div class="border rounded p-3 mb-3">
+        <h3 class="h5">@vinculo.Socio.CodigoSocio — @vinculo.Socio.Persona.Nombres @vinculo.Socio.Persona.Apellidos</h3>
+        <p>Fecha de vinculación: @vinculo.FechaVinculacion.ToString("dd/MM/yyyy")</p>
+        <form asp-action="EditarSocio" asp-route-id="@Model.CuentaId" method="post" class="mb-2">
+            <input type="hidden" name="socioId" value="@vinculo.SocioId" />
+            <label for="rol-@vinculo.SocioId" class="form-label">Rol</label>
+            <select name="rol" id="rol-@vinculo.SocioId" class="form-select mb-2">
+                <option value="TITULAR" selected="@(vinculo.Rol == "TITULAR")">Titular</option>
+                <option value="COTITULAR" selected="@(vinculo.Rol == "COTITULAR")">Cotitular</option>
+            </select>
+            <div class="form-check mb-2">
+                <input type="checkbox" name="puedeOperar" id="operar-@vinculo.SocioId" value="true" checked="@vinculo.PuedeOperar" class="form-check-input" />
+                <label for="operar-@vinculo.SocioId" class="form-check-label">Puede operar</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar asociación</button>
+        </form>
+        <form asp-action="Desvincular" asp-route-id="@Model.CuentaId" method="post">
+            <input type="hidden" name="socioId" value="@vinculo.SocioId" />
+            <button type="submit" class="btn btn-outline-danger">Quitar de esta cuenta</button>
+        </form>
+    </div>
+}
+
+<h2>Asociar socio</h2>
+<p>Solo se muestran socios que aún no están asociados a esta cuenta. Si no hay disponibles, registra uno en <a asp-controller="Socios" asp-action="Create">Socios</a>.</p>
+<form asp-action="Vincular" asp-route-id="@Model.CuentaId" method="post" class="col-md-6">
+    <div class="mb-3">
+        <label for="socioId" class="form-label">Socio</label>
+        <select name="socioId" id="socioId" asp-items="ViewBag.Socios" class="form-select" required>
+            <option value="">Seleccionar socio</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="nuevoRol" class="form-label">Rol</label>
+        <select name="rol" id="nuevoRol" class="form-select">
+            <option value="TITULAR">Titular</option>
+            <option value="COTITULAR">Cotitular</option>
+        </select>
+    </div>
+    <div class="form-check mb-3">
+        <input type="checkbox" name="puedeOperar" id="nuevoPermiso" value="true" checked class="form-check-input" />
+        <label for="nuevoPermiso" class="form-check-label">Puede operar</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Asociar socio</button>
+</form>

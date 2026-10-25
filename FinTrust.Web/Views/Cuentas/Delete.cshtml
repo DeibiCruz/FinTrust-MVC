@@ -1,0 +1,15 @@
+@model FinTrust.Web.Models.Cuentum
+
+@{
+    ViewData["Title"] = "Eliminar cuenta";
+}
+
+<h1>Eliminar cuenta</h1>
+<div asp-validation-summary="All" class="text-danger"></div>
+<p>¿Deseas eliminar la cuenta <strong>@Model.NumeroCuenta</strong>?</p>
+<p>Se quitarán sus asociaciones con socios. Las personas y los socios seguirán registrados.</p>
+<p>No se puede eliminar si tiene movimientos o préstamos relacionados.</p>
+<form asp-action="Delete" asp-route-id="@Model.CuentaId" method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Details" asp-route-id="@Model.CuentaId">Cancelar</a>
+</form>

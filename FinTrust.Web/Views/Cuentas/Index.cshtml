@@ -1,0 +1,45 @@
+@model IEnumerable<FinTrust.Web.Models.Cuentum>
+
+@{
+    ViewData["Title"] = "Cuentas";
+}
+
+<h1>Cuentas bancarias</h1>
+<p><a asp-action="Create" class="btn btn-primary">Crear cuenta</a></p>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Número de cuenta</th>
+                <th>Tipo</th>
+                <th>Moneda</th>
+                <th>Saldo actual</th>
+                <th>Fecha de apertura</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cuenta in Model)
+            {
+                <tr>
+                    <td>@cuenta.NumeroCuenta</td>
+                    <td>@cuenta.TipoCuenta</td>
+                    <td>@cuenta.Moneda</td>
+                    <td>@cuenta.SaldoActual.ToString("N2")</td>
+                    <td>@cuenta.FechaApertura.ToString("dd/MM/yyyy")</td>
+                    <td>@cuenta.Estado</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@cuenta.CuentaId">Detalles y socios</a> |
+                        <a asp-action="Edit" asp-route-id="@cuenta.CuentaId">Editar</a> |
+                        <a asp-action="Delete" asp-route-id="@cuenta.CuentaId">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if (!Model.Any())
+{
+    <p>No hay cuentas registradas.</p>
+}

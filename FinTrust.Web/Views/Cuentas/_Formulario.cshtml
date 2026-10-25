@@ -1,0 +1,38 @@
+@model FinTrust.Web.Models.Cuentum
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<div class="mb-3">
+    <label asp-for="NumeroCuenta" class="form-label">Número de cuenta</label>
+    <input asp-for="NumeroCuenta" class="form-control" maxlength="30" required />
+</div>
+<div class="mb-3">
+    <label asp-for="TipoCuenta" class="form-label">Tipo de cuenta</label>
+    <select asp-for="TipoCuenta" class="form-select">
+        <option value="AHORRO">Ahorro</option>
+        <option value="CORRIENTE">Corriente</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label asp-for="Moneda" class="form-label">Moneda</label>
+    <select asp-for="Moneda" class="form-select">
+        <option value="BOB">BOB</option>
+        <option value="USD">USD</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label asp-for="SaldoActual" class="form-label">Saldo actual</label>
+    <input asp-for="SaldoActual" type="number" step="0.01" min="0" class="form-control" required />
+</div>
+<div class="mb-3">
+    <label asp-for="FechaApertura" class="form-label">Fecha de apertura</label>
+    <input asp-for="FechaApertura" type="date" class="form-control" required />
+</div>
+<div class="mb-3">
+    <label asp-for="Estado" class="form-label">Estado</label>
+    <select asp-for="Estado" class="form-select">
+        <option value="ACTIVA">Activa</option>
+        <option value="BLOQUEADA">Bloqueada</option>
+        <option value="CERRADA">Cerrada</option>
+    </select>
+</div>
