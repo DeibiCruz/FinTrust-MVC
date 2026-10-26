@@ -1,0 +1,44 @@
+﻿@model FinTrust.Web.Models.GarantiaReal
+
+@{
+    ViewData["Title"] = "Detalles de garantía real";
+}
+
+<h1>Detalles de garantía real</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Préstamo</dt>
+    <dd class="col-sm-9">@Model.Prestamo?.NumeroPrestamo</dd>
+
+    <dt class="col-sm-3">Persona propietaria</dt>
+    <dd class="col-sm-9">
+        @Model.PersonaPropietaria?.Nombres
+        @Model.PersonaPropietaria?.Apellidos
+    </dd>
+
+    <dt class="col-sm-3">Tipo de garantía</dt>
+    <dd class="col-sm-9">@Model.TipoGarantia</dd>
+
+    <dt class="col-sm-3">Descripción</dt>
+    <dd class="col-sm-9">@Model.Descripcion</dd>
+
+    <dt class="col-sm-3">Valor tasado</dt>
+    <dd class="col-sm-9">@Model.ValorTasado.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Fecha de valuación</dt>
+    <dd class="col-sm-9">@Model.FechaValuacion</dd>
+</dl>
+
+<div>
+    <a asp-action="Edit"
+       asp-route-id="@Model.GarantiaId"
+       class="btn btn-primary">
+        Editar
+    </a>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver
+    </a>
+</div>

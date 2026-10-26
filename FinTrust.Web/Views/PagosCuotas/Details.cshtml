@@ -1,0 +1,53 @@
+@model FinTrust.Web.Models.PagoCuotum
+
+@{
+    ViewData["Title"] = "Detalles del pago";
+}
+
+<h1>Detalles del pago</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Préstamo</dt>
+    <dd class="col-sm-9">@Model.Cuota?.Prestamo?.NumeroPrestamo</dd>
+
+    <dt class="col-sm-3">Número de cuota</dt>
+    <dd class="col-sm-9">@Model.Cuota?.NumeroCuota</dd>
+
+    <dt class="col-sm-3">Total de la cuota</dt>
+    <dd class="col-sm-9">@(((Model.Cuota?.CapitalProgramado ?? 0) + (Model.Cuota?.InteresProgramado ?? 0)).ToString("N2")) Bs</dd>
+
+    <dt class="col-sm-3">Estado de la cuota</dt>
+    <dd class="col-sm-9">@Model.Cuota?.Estado</dd>
+
+    <dt class="col-sm-3">Operación financiera</dt>
+    <dd class="col-sm-9">#@Model.OperacionId</dd>
+
+    <dt class="col-sm-3">Tipo de operación</dt>
+    <dd class="col-sm-9">@Model.Operacion?.TipoOperacion</dd>
+
+    <dt class="col-sm-3">Monto de la operación</dt>
+    <dd class="col-sm-9">@Model.Operacion?.Monto.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Referencia</dt>
+    <dd class="col-sm-9">@Model.Operacion?.Referencia</dd>
+
+    <dt class="col-sm-3">Monto aplicado</dt>
+    <dd class="col-sm-9">@Model.MontoAplicado.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Fecha de pago</dt>
+    <dd class="col-sm-9">@Model.FechaPago.ToString("dd/MM/yyyy HH:mm:ss")</dd>
+</dl>
+
+<div>
+    <a asp-action="Edit"
+       asp-route-id="@Model.PagoCuotaId"
+       class="btn btn-primary">
+        Editar
+    </a>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver
+    </a>
+</div>

@@ -1,0 +1,58 @@
+﻿@model IEnumerable<FinTrust.Web.Models.PrestamoGarante>
+
+@{
+    ViewData["Title"] = "Garantes de préstamos";
+}
+
+<h1>Garantes de préstamos</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Registrar garante
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Préstamo</th>
+            <th>Garante</th>
+            <th>Tipo de responsabilidad</th>
+            <th>Monto respaldado</th>
+            <th>Fecha de aceptación</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Prestamo?.NumeroPrestamo</td>
+                <td>
+                    @item.PersonaGarante?.Nombres
+                    @item.PersonaGarante?.Apellidos
+                </td>
+                <td>@item.TipoResponsabilidad</td>
+                <td>@item.MontoRespaldado?.ToString("N2")</td>
+                <td>@item.FechaAceptacion</td>
+                <td>
+                    <a asp-action="Edit"
+                       asp-route-prestamoId="@item.PrestamoId"
+                       asp-route-personaGaranteId="@item.PersonaGaranteId">
+                        Editar
+                    </a> |
+                    <a asp-action="Details"
+                       asp-route-prestamoId="@item.PrestamoId"
+                       asp-route-personaGaranteId="@item.PersonaGaranteId">
+                        Detalles
+                    </a> |
+                    <a asp-action="Delete"
+                       asp-route-prestamoId="@item.PrestamoId"
+                       asp-route-personaGaranteId="@item.PersonaGaranteId">
+                        Eliminar
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

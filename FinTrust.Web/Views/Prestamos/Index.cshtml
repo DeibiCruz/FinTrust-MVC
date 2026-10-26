@@ -1,0 +1,47 @@
+@model IEnumerable<FinTrust.Web.Models.Prestamo>
+
+@{
+    ViewData["Title"] = "Préstamos";
+}
+
+<h1>Préstamos</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Registrar préstamo
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Número</th>
+            <th>Socio</th>
+            <th>Capital</th>
+            <th>Tasa anual</th>
+            <th>Plazo</th>
+            <th>Fecha de solicitud</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NumeroPrestamo</td>
+                <td>@item.SocioSolicitante?.CodigoSocio</td>
+                <td>@item.Capital.ToString("N2")</td>
+                <td>@item.TasaInteresAnual.ToString("N2") %</td>
+                <td>@item.PlazoMeses meses</td>
+                <td>@item.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                <td>@item.Estado</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.PrestamoId">Editar</a> |
+                    <a asp-action="Details" asp-route-id="@item.PrestamoId">Detalles</a> |
+                    <a asp-action="Delete" asp-route-id="@item.PrestamoId">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

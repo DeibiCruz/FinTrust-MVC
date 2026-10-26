@@ -1,0 +1,95 @@
+﻿@model FinTrust.Web.Models.PrestamoGarante
+
+@{
+    ViewData["Title"] = "Registrar garante";
+}
+
+<h1>Registrar garante</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="PrestamoId" class="form-label">
+                    Préstamo
+                </label>
+                <select asp-for="PrestamoId"
+                        class="form-select"
+                        asp-items="ViewBag.PrestamoId">
+                    <option value="">Seleccione un préstamo</option>
+                </select>
+                <span asp-validation-for="PrestamoId"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PersonaGaranteId" class="form-label">
+                    Persona garante
+                </label>
+                <select asp-for="PersonaGaranteId"
+                        class="form-select"
+                        asp-items="ViewBag.PersonaGaranteId">
+                    <option value="">Seleccione una persona</option>
+                </select>
+                <span asp-validation-for="PersonaGaranteId"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TipoResponsabilidad" class="form-label">
+                    Tipo de responsabilidad
+                </label>
+                <select asp-for="TipoResponsabilidad"
+                        class="form-select">
+                    <option value="SOLIDARIA">SOLIDARIA</option>
+                    <option value="SUBSIDIARIA">SUBSIDIARIA</option>
+                </select>
+                <span asp-validation-for="TipoResponsabilidad"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MontoRespaldado" class="form-label">
+                    Monto respaldado (Bs)
+                </label>
+                <input asp-for="MontoRespaldado"
+                       type="number"
+                       step="0.01"
+                       min="0.01"
+                       class="form-control" />
+                <span asp-validation-for="MontoRespaldado"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FechaAceptacion" class="form-label">
+                    Fecha de aceptación
+                </label>
+                <input asp-for="FechaAceptacion"
+                       type="date"
+                       class="form-control" />
+                <span asp-validation-for="FechaAceptacion"
+                      class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Guardar
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,46 @@
+﻿@model FinTrust.Web.Models.GarantiaReal
+
+@{
+    ViewData["Title"] = "Eliminar garantía real";
+}
+
+<h1>Eliminar garantía real</h1>
+
+<h3>¿Está seguro de eliminar esta garantía?</h3>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Préstamo</dt>
+    <dd class="col-sm-9">@Model.Prestamo?.NumeroPrestamo</dd>
+
+    <dt class="col-sm-3">Persona propietaria</dt>
+    <dd class="col-sm-9">
+        @Model.PersonaPropietaria?.Nombres
+        @Model.PersonaPropietaria?.Apellidos
+    </dd>
+
+    <dt class="col-sm-3">Tipo de garantía</dt>
+    <dd class="col-sm-9">@Model.TipoGarantia</dd>
+
+    <dt class="col-sm-3">Descripción</dt>
+    <dd class="col-sm-9">@Model.Descripcion</dd>
+
+    <dt class="col-sm-3">Valor tasado</dt>
+    <dd class="col-sm-9">@Model.ValorTasado.ToString("N2") Bs</dd>
+</dl>
+
+<form asp-action="Delete"
+      asp-route-id="@Model.GarantiaId"
+      method="post">
+
+    <input type="hidden" asp-for="GarantiaId" />
+
+    <button type="submit" class="btn btn-danger">
+        Eliminar
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancelar
+    </a>
+</form>
