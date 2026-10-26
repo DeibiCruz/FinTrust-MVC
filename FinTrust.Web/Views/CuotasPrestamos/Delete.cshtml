@@ -1,0 +1,64 @@
+@model FinTrust.Web.Models.CuotaPrestamo
+
+@{
+    ViewData["Title"] = "Eliminar cuota";
+    bool tienePagos = ViewBag.TienePagos == true;
+}
+
+<h1>Eliminar cuota</h1>
+
+@if (tienePagos)
+{
+    <div class="alert alert-warning">
+        Esta cuota tiene pagos asociados y no se puede eliminar.
+    </div>
+}
+else
+{
+    <h3>¿Está seguro de eliminar esta cuota?</h3>
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Préstamo</dt>
+    <dd class="col-sm-9">@Model.Prestamo?.NumeroPrestamo</dd>
+
+    <dt class="col-sm-3">Número de cuota</dt>
+    <dd class="col-sm-9">@Model.NumeroCuota</dd>
+
+    <dt class="col-sm-3">Fecha de vencimiento</dt>
+    <dd class="col-sm-9">@Model.FechaVencimiento.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Capital programado</dt>
+    <dd class="col-sm-9">@Model.CapitalProgramado.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Interés programado</dt>
+    <dd class="col-sm-9">@Model.InteresProgramado.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Total</dt>
+    <dd class="col-sm-9">@((Model.CapitalProgramado + Model.InteresProgramado).ToString("N2")) Bs</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+</dl>
+
+<form asp-action="Delete"
+      asp-route-id="@Model.CuotaId"
+      method="post">
+
+    <input type="hidden" asp-for="CuotaId" />
+
+    @if (!tienePagos)
+    {
+        <button type="submit" class="btn btn-danger">
+            Eliminar
+        </button>
+    }
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver
+    </a>
+</form>
