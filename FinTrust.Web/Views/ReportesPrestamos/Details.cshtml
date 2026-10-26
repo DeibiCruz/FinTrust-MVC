@@ -1,0 +1,80 @@
+@model FinTrust.Web.ViewModels.ReportePrestamoDetalleViewModel
+
+@{
+    ViewData["Title"] = "Detalle del préstamo";
+}
+
+<h1>Detalle del préstamo @Model.NumeroPrestamo</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Número de préstamo</dt>
+    <dd class="col-sm-9">@Model.NumeroPrestamo</dd>
+
+    <dt class="col-sm-3">Socio solicitante</dt>
+    <dd class="col-sm-9">@Model.CodigoSocio - @Model.NombreSocio</dd>
+
+    <dt class="col-sm-3">Capital</dt>
+    <dd class="col-sm-9">@Model.Capital.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+
+    <dt class="col-sm-3">Total programado</dt>
+    <dd class="col-sm-9">@Model.TotalProgramado.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Total pagado</dt>
+    <dd class="col-sm-9">@Model.TotalPagado.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Saldo pendiente de cuotas</dt>
+    <dd class="col-sm-9">@Model.SaldoPendiente.ToString("N2") Bs</dd>
+</dl>
+
+<h4>Cuotas</h4>
+
+@if (!Model.Cuotas.Any())
+{
+    <div class="alert alert-info">
+        Este préstamo todavía no tiene cuotas registradas. El saldo calculado a partir
+        de las cuotas es 0,00 Bs, pero esto no significa que la deuda del préstamo sea cero.
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Número de cuota</th>
+                <th>Fecha de vencimiento</th>
+                <th>Capital programado</th>
+                <th>Interés programado</th>
+                <th>Total de la cuota</th>
+                <th>Total pagado</th>
+                <th>Saldo pendiente</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cuota in Model.Cuotas)
+            {
+                <tr>
+                    <td>@cuota.NumeroCuota</td>
+                    <td>@cuota.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+                    <td>@cuota.CapitalProgramado.ToString("N2") Bs</td>
+                    <td>@cuota.InteresProgramado.ToString("N2") Bs</td>
+                    <td>@cuota.TotalCuota.ToString("N2") Bs</td>
+                    <td>@cuota.TotalPagado.ToString("N2") Bs</td>
+                    <td>@cuota.SaldoPendiente.ToString("N2") Bs</td>
+                    <td>@cuota.Estado</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver
+    </a>
+</div>
