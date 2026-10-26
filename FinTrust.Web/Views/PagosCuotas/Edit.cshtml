@@ -1,0 +1,72 @@
+@model FinTrust.Web.Models.PagoCuotum
+
+@{
+    ViewData["Title"] = "Editar pago";
+}
+
+<h1>Editar pago</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit"
+              asp-route-id="@Model.PagoCuotaId"
+              method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="PagoCuotaId" />
+
+            <div class="mb-3">
+                <label class="form-label">Cuota</label>
+                <input value="@Model.Cuota?.Prestamo?.NumeroPrestamo - Cuota @Model.Cuota?.NumeroCuota"
+                       class="form-control"
+                       readonly />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Operación financiera</label>
+                <input value="#@Model.OperacionId - @Model.Operacion?.TipoOperacion - @Model.Operacion?.Monto.ToString("N2") Bs"
+                       class="form-control"
+                       readonly />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MontoAplicado" class="form-label">
+                    Monto aplicado (Bs)
+                </label>
+                <input asp-for="MontoAplicado"
+                       type="number"
+                       step="0.01"
+                       min="0.01"
+                       class="form-control" />
+                <span asp-validation-for="MontoAplicado" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FechaPago" class="form-label">
+                    Fecha de pago
+                </label>
+                <input asp-for="FechaPago"
+                       type="datetime-local"
+                       class="form-control" />
+                <span asp-validation-for="FechaPago" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Guardar cambios
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
