@@ -1,40 +1,45 @@
 @model IEnumerable<FinTrust.Web.Models.Socio>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Socios";
 }
 
-<h1>Index</h1>
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">Gestión de asociados</span>
+        <h1>Socios</h1>
+        <p class="page-subtitle">Consulta y administra los socios registrados en FinTrust.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ Crear socio</a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<div class="table-card">
+<table class="table table-hover align-middle mb-0">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.PersonaId)
+                Persona
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CodigoSocio)
+                Código de socio
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FechaIngreso)
+                Fecha de ingreso
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Estado)
+                Estado
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CuentaSocios)
+                Cuentas
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.OperacionFinancieras)
+                Operaciones
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Persona)
+                Datos de persona
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Prestamos)
+                Préstamos
             </th>
             <th></th>
         </tr>
@@ -68,11 +73,12 @@
                     @Html.DisplayFor(model => item.Prestamos)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.SocioId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.SocioId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.SocioId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.SocioId" class="action-link">Editar</a>
+                    <a asp-action="Details" asp-route-id="@item.SocioId" class="action-link">Ver</a>
+                    <a asp-action="Delete" asp-route-id="@item.SocioId" class="action-link action-danger">Eliminar</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+</div>

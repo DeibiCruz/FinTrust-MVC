@@ -19,6 +19,93 @@ html {
 
 body {
   margin-bottom: 60px;
+  background: #f6f8fb;
+  color: #1f2937;
+}
+
+.navbar {
+  background: #ffffff !important;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: #173b72 !important;
+}
+
+.nav-link {
+  border-radius: 8px;
+  margin-right: 4px;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.nav-link:hover {
+  background: #eaf1ff;
+  color: #1f5fc4 !important;
+}
+
+.page-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 1.25rem;
+}
+
+.eyebrow {
+  color: #4776b8;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.page-heading h1 {
+  color: #173b72;
+  font-weight: 700;
+  margin: .25rem 0;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  margin: 0;
+}
+
+.table-card {
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #e5eaf2;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(23, 59, 114, .07);
+}
+
+.table thead th {
+  background: #eef4ff;
+  border-bottom: 1px solid #dbe6f7;
+  color: #244a80;
+  font-size: .84rem;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.action-link {
+  margin-right: .65rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.action-danger {
+  color: #b42318;
+}
+
+@media (max-width: 768px) {
+  .page-heading {
+    align-items: start;
+    flex-direction: column;
+  }
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
