@@ -51,17 +51,29 @@ public class PrestamoGarantesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(PrestamoGarante garante)
+    public async Task<IActionResult> Create(
+        [Bind("PrestamoId,PersonaGaranteId,TipoResponsabilidad,MontoRespaldado,FechaAceptacion")]
+        PrestamoGarante garante)
     {
         ModelState.Remove(nameof(PrestamoGarante.Prestamo));
         ModelState.Remove(nameof(PrestamoGarante.PersonaGarante));
 
-        if (garante.MontoRespaldado.HasValue &&
-            garante.MontoRespaldado.Value <= 0)
+        ValidarDatos(garante);
+
+        if (!TieneError(nameof(PrestamoGarante.PrestamoId)) &&
+            !await _context.Prestamos.AnyAsync(p => p.PrestamoId == garante.PrestamoId))
         {
             ModelState.AddModelError(
-                nameof(PrestamoGarante.MontoRespaldado),
-                "El monto respaldado debe ser mayor a cero.");
+                nameof(PrestamoGarante.PrestamoId),
+                "El préstamo seleccionado no existe.");
+        }
+
+        if (!TieneError(nameof(PrestamoGarante.PersonaGaranteId)) &&
+            !await _context.Personas.AnyAsync(p => p.PersonaId == garante.PersonaGaranteId))
+        {
+            ModelState.AddModelError(
+                nameof(PrestamoGarante.PersonaGaranteId),
+                "La persona seleccionada no existe.");
         }
 
         bool existe = await _context.PrestamoGarantes
@@ -78,10 +90,19 @@ public class PrestamoGarantesController : Controller
 
         if (ModelState.IsValid)
         {
-            _context.PrestamoGarantes.Add(garante);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.PrestamoGarantes.Add(garante);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "No se pudo registrar el garante. Revise los datos ingresados.");
+            }
         }
 
         CargarListas();
@@ -105,6 +126,7 @@ public class PrestamoGarantesController : Controller
     public async Task<IActionResult> Edit(
         int prestamoId,
         int personaGaranteId,
+        [Bind("PrestamoId,PersonaGaranteId,TipoResponsabilidad,MontoRespaldado,FechaAceptacion")]
         PrestamoGarante garante)
     {
         if (prestamoId != garante.PrestamoId ||
@@ -116,13 +138,7 @@ public class PrestamoGarantesController : Controller
         ModelState.Remove(nameof(PrestamoGarante.Prestamo));
         ModelState.Remove(nameof(PrestamoGarante.PersonaGarante));
 
-        if (garante.MontoRespaldado.HasValue &&
-            garante.MontoRespaldado.Value <= 0)
-        {
-            ModelState.AddModelError(
-                nameof(PrestamoGarante.MontoRespaldado),
-                "El monto respaldado debe ser mayor a cero.");
-        }
+        ValidarDatos(garante);
 
         if (ModelState.IsValid)
         {
@@ -136,9 +152,18 @@ public class PrestamoGarantesController : Controller
             registro.MontoRespaldado = garante.MontoRespaldado;
             registro.FechaAceptacion = garante.FechaAceptacion;
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "No se pudo actualizar el garante. Revise los datos ingresados.");
+            }
         }
 
         CargarListas();
@@ -176,6 +201,56 @@ public class PrestamoGarantesController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private void ValidarDatos(PrestamoGarante garante)
+    {
+        ReemplazarError(nameof(PrestamoGarante.PrestamoId), "Seleccione un préstamo.");
+        ReemplazarError(nameof(PrestamoGarante.PersonaGaranteId), "Seleccione una persona.");
+        ReemplazarError(nameof(PrestamoGarante.MontoRespaldado), "Ingrese un monto válido.");
+        ReemplazarError(nameof(PrestamoGarante.FechaAceptacion), "Ingrese una fecha de aceptación válida.");
+        ModelState.Remove(nameof(PrestamoGarante.TipoResponsabilidad));
+
+        if (garante.TipoResponsabilidad != "SOLIDARIA" &&
+            garante.TipoResponsabilidad != "SUBSIDIARIA")
+        {
+            ModelState.AddModelError(
+                nameof(PrestamoGarante.TipoResponsabilidad),
+                "Seleccione un tipo de responsabilidad válido.");
+        }
+
+        if (garante.MontoRespaldado.HasValue)
+        {
+            decimal monto = garante.MontoRespaldado.Value;
+
+            if (monto <= 0)
+            {
+                ModelState.AddModelError(
+                    nameof(PrestamoGarante.MontoRespaldado),
+                    "El monto respaldado debe ser mayor a cero.");
+            }
+            else if (monto > 9999999999999999.99m ||
+                     decimal.Round(monto, 2) != monto)
+            {
+                ModelState.AddModelError(
+                    nameof(PrestamoGarante.MontoRespaldado),
+                    "El monto respaldado debe tener como máximo 2 decimales y un valor válido.");
+            }
+        }
+    }
+
+    private bool TieneError(string campo)
+    {
+        return ModelState[campo]?.Errors.Count > 0;
+    }
+
+    private void ReemplazarError(string campo, string mensaje)
+    {
+        if (TieneError(campo))
+        {
+            ModelState[campo]!.Errors.Clear();
+            ModelState.AddModelError(campo, mensaje);
+        }
     }
 
     private void CargarListas()

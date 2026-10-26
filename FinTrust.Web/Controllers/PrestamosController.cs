@@ -7,6 +7,11 @@ using FinTrust.Web.Data;
 
 public class PrestamosController : Controller
 {
+    private static readonly string[] EstadosPermitidos =
+    {
+        "SOLICITADO", "APROBADO", "RECHAZADO", "DESEMBOLSADO", "CANCELADO"
+    };
+
     private readonly FinTrustDbContext _context;
 
     public PrestamosController(FinTrustDbContext context)
@@ -63,26 +68,7 @@ public class PrestamosController : Controller
     {
         ModelState.Remove(nameof(Prestamo.SocioSolicitante));
 
-        if (prestamo.Capital <= 0)
-        {
-            ModelState.AddModelError(
-                nameof(Prestamo.Capital),
-                "El capital debe ser mayor que cero.");
-        }
-
-        if (prestamo.TasaInteresAnual < 0)
-        {
-            ModelState.AddModelError(
-                nameof(Prestamo.TasaInteresAnual),
-                "La tasa de interes no puede ser negativa.");
-        }
-
-        if (prestamo.PlazoMeses <= 0)
-        {
-            ModelState.AddModelError(
-                nameof(Prestamo.PlazoMeses),
-                "El plazo debe ser mayor que cero.");
-        }
+        await ValidarPrestamo(prestamo, null);
 
         if (ModelState.IsValid)
         {
@@ -139,26 +125,7 @@ public class PrestamosController : Controller
 
         ModelState.Remove(nameof(Prestamo.SocioSolicitante));
 
-        if (prestamo.Capital <= 0)
-        {
-            ModelState.AddModelError(
-                nameof(Prestamo.Capital),
-                "El capital debe ser mayor que cero.");
-        }
-
-        if (prestamo.TasaInteresAnual < 0)
-        {
-            ModelState.AddModelError(
-                nameof(Prestamo.TasaInteresAnual),
-                "La tasa de interes no puede ser negativa.");
-        }
-
-        if (prestamo.PlazoMeses <= 0)
-        {
-            ModelState.AddModelError(
-                nameof(Prestamo.PlazoMeses),
-                "El plazo debe ser mayor que cero.");
-        }
+        await ValidarPrestamo(prestamo, id);
 
         if (ModelState.IsValid)
         {
@@ -195,11 +162,11 @@ public class PrestamosController : Controller
 
                 throw;
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
                 ModelState.AddModelError(
                     "",
-                    "Error al actualizar: " + ex.GetBaseException().Message);
+                    "No se pudo actualizar el prestamo. Revisa los datos relacionados.");
             }
         }
 
@@ -238,6 +205,20 @@ public class PrestamosController : Controller
             return NotFound();
         }
 
+        bool tieneRelacionados =
+            await _context.CuotaPrestamos.AnyAsync(c => c.PrestamoId == id) ||
+            await _context.PrestamoGarantes.AnyAsync(g => g.PrestamoId == id) ||
+            await _context.GarantiaReals.AnyAsync(g => g.PrestamoId == id);
+
+        if (tieneRelacionados)
+        {
+            ModelState.AddModelError(
+                "",
+                "No se puede eliminar este prestamo porque tiene cuotas, garantes o garantias registradas.");
+
+            return View("Delete", prestamo);
+        }
+
         try
         {
             _context.Prestamos.Remove(prestamo);
@@ -253,6 +234,133 @@ public class PrestamosController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task ValidarPrestamo(Prestamo prestamo, int? idActual)
+    {
+        ReemplazarError(nameof(Prestamo.SocioSolicitanteId), "Seleccione un socio solicitante.");
+        ReemplazarError(nameof(Prestamo.Capital), "Ingrese un capital valido.");
+        ReemplazarError(nameof(Prestamo.TasaInteresAnual), "Ingrese una tasa de interes valida.");
+        ReemplazarError(nameof(Prestamo.PlazoMeses), "Ingrese un plazo valido.");
+        ReemplazarError(nameof(Prestamo.FechaSolicitud), "Ingrese una fecha de solicitud valida.");
+        ModelState.Remove(nameof(Prestamo.NumeroPrestamo));
+        ModelState.Remove(nameof(Prestamo.Estado));
+
+        if (string.IsNullOrWhiteSpace(prestamo.NumeroPrestamo))
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.NumeroPrestamo),
+                "El numero de prestamo es obligatorio.");
+        }
+        else
+        {
+            prestamo.NumeroPrestamo = prestamo.NumeroPrestamo.Trim();
+
+            if (prestamo.NumeroPrestamo.Length > 30)
+            {
+                ModelState.AddModelError(
+                    nameof(Prestamo.NumeroPrestamo),
+                    "El numero de prestamo admite hasta 30 caracteres.");
+            }
+            else
+            {
+                bool repetido = await _context.Prestamos.AnyAsync(p =>
+                    p.NumeroPrestamo == prestamo.NumeroPrestamo &&
+                    (idActual == null || p.PrestamoId != idActual));
+
+                if (repetido)
+                {
+                    ModelState.AddModelError(
+                        nameof(Prestamo.NumeroPrestamo),
+                        "Ya existe un prestamo con este numero.");
+                }
+            }
+        }
+
+        if (!TieneError(nameof(Prestamo.Capital)) && prestamo.Capital <= 0)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.Capital),
+                "El capital debe ser mayor que cero.");
+        }
+        else if (prestamo.Capital > 9999999999999999.99m ||
+                 decimal.Round(prestamo.Capital, 2) != prestamo.Capital)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.Capital),
+                "El capital debe tener como maximo 2 decimales y un valor valido.");
+        }
+
+        if (!TieneError(nameof(Prestamo.TasaInteresAnual)) && prestamo.TasaInteresAnual < 0)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.TasaInteresAnual),
+                "La tasa de interes no puede ser negativa.");
+        }
+        else if (prestamo.TasaInteresAnual > 100)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.TasaInteresAnual),
+                "La tasa de interes no puede ser mayor a 100.");
+        }
+        else if (decimal.Round(prestamo.TasaInteresAnual, 4) != prestamo.TasaInteresAnual)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.TasaInteresAnual),
+                "La tasa de interes admite hasta 4 decimales.");
+        }
+
+        if (!TieneError(nameof(Prestamo.PlazoMeses)) && prestamo.PlazoMeses <= 0)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.PlazoMeses),
+                "El plazo debe ser mayor que cero.");
+        }
+
+        if (!EstadosPermitidos.Contains(prestamo.Estado))
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.Estado),
+                "Seleccione un estado valido.");
+        }
+
+        if (!TieneError(nameof(Prestamo.SocioSolicitanteId)) &&
+            !await _context.Socios.AnyAsync(s => s.SocioId == prestamo.SocioSolicitanteId))
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.SocioSolicitanteId),
+                "El socio seleccionado no existe.");
+        }
+
+        if (prestamo.CuentaDesembolsoId.HasValue &&
+            !await _context.Cuenta.AnyAsync(c => c.CuentaId == prestamo.CuentaDesembolsoId))
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.CuentaDesembolsoId),
+                "La cuenta seleccionada no existe.");
+        }
+
+        if (prestamo.EmpleadoAprobadorId.HasValue &&
+            !await _context.Empleados.AnyAsync(e => e.EmpleadoId == prestamo.EmpleadoAprobadorId))
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.EmpleadoAprobadorId),
+                "El empleado seleccionado no existe.");
+        }
+    }
+
+    private bool TieneError(string campo)
+    {
+        return ModelState[campo]?.Errors.Count > 0;
+    }
+
+    private void ReemplazarError(string campo, string mensaje)
+    {
+        if (TieneError(campo))
+        {
+            ModelState[campo]!.Errors.Clear();
+            ModelState.AddModelError(campo, mensaje);
+        }
     }
 
     private bool PrestamoExists(int id)

@@ -139,6 +139,17 @@ public class CuotasPrestamosController : Controller
             }
         }
 
+        decimal totalPagado = await _context.PagoCuota
+            .Where(p => p.CuotaId == id)
+            .SumAsync(p => (decimal?)p.MontoAplicado) ?? 0;
+
+        if (cuota.CapitalProgramado + cuota.InteresProgramado < totalPagado)
+        {
+            ModelState.AddModelError(
+                "",
+                $"El total de la cuota no puede ser menor a lo ya pagado ({totalPagado:N2} Bs).");
+        }
+
         if (ModelState.IsValid)
         {
             registro.PrestamoId = cuota.PrestamoId;
@@ -230,7 +241,13 @@ public class CuotasPrestamosController : Controller
 
     private async Task ValidarCuota(CuotaPrestamo cuota, int? cuotaIdActual)
     {
-        if (cuota.NumeroCuota <= 0)
+        ReemplazarError(nameof(CuotaPrestamo.PrestamoId), "Seleccione un préstamo.");
+        ReemplazarError(nameof(CuotaPrestamo.NumeroCuota), "Ingrese un número de cuota válido (entre 1 y 32767).");
+        ReemplazarError(nameof(CuotaPrestamo.FechaVencimiento), "Ingrese una fecha de vencimiento válida.");
+        ReemplazarError(nameof(CuotaPrestamo.CapitalProgramado), "Ingrese un capital programado válido.");
+        ReemplazarError(nameof(CuotaPrestamo.InteresProgramado), "Ingrese un interés programado válido.");
+
+        if (!TieneError(nameof(CuotaPrestamo.NumeroCuota)) && cuota.NumeroCuota <= 0)
         {
             ModelState.AddModelError(
                 nameof(CuotaPrestamo.NumeroCuota),
@@ -250,7 +267,7 @@ public class CuotasPrestamosController : Controller
         bool prestamoExiste = await _context.Prestamos
             .AnyAsync(p => p.PrestamoId == cuota.PrestamoId);
 
-        if (!prestamoExiste)
+        if (!prestamoExiste && !TieneError(nameof(CuotaPrestamo.PrestamoId)))
         {
             ModelState.AddModelError(
                 nameof(CuotaPrestamo.PrestamoId),
@@ -294,6 +311,20 @@ public class CuotasPrestamosController : Controller
             ModelState.AddModelError(
                 campo,
                 $"El {nombre} solo puede tener hasta 2 decimales.");
+        }
+    }
+
+    private bool TieneError(string campo)
+    {
+        return ModelState[campo]?.Errors.Count > 0;
+    }
+
+    private void ReemplazarError(string campo, string mensaje)
+    {
+        if (TieneError(campo))
+        {
+            ModelState[campo]!.Errors.Clear();
+            ModelState.AddModelError(campo, mensaje);
         }
     }
 

@@ -17,7 +17,8 @@
                 <label asp-for="NumeroPrestamo" class="control-label">
                     Número de préstamo
                 </label>
-                <input asp-for="NumeroPrestamo" class="form-control" />
+                <input asp-for="NumeroPrestamo" maxlength="30" class="form-control"
+                       data-val-required="El número de préstamo es obligatorio." />
                 <span asp-validation-for="NumeroPrestamo" class="text-danger"></span>
             </div>
 
@@ -27,7 +28,8 @@
                 </label>
                 <select asp-for="SocioSolicitanteId"
                         asp-items="ViewBag.SocioSolicitanteId"
-                        class="form-select">
+                        class="form-select"
+                        data-val-required="Seleccione un socio solicitante.">
                     <option value="">Seleccione un socio</option>
                 </select>
                 <span asp-validation-for="SocioSolicitanteId" class="text-danger"></span>
@@ -59,7 +61,12 @@
 
             <div class="form-group mb-3">
                 <label asp-for="Capital" class="control-label">Capital</label>
-                <input asp-for="Capital" class="form-control" />
+                <input asp-for="Capital" type="number" step="0.01" min="0.01"
+                       class="form-control"
+                       data-val-required="El capital es obligatorio."
+                       data-val-number="El capital debe ser un número."
+                       data-msg-min="El capital debe ser mayor que cero."
+                       data-msg-step="El capital admite como máximo 2 decimales." />
                 <span asp-validation-for="Capital" class="text-danger"></span>
             </div>
 
@@ -67,7 +74,13 @@
                 <label asp-for="TasaInteresAnual" class="control-label">
                     Tasa de interés anual
                 </label>
-                <input asp-for="TasaInteresAnual" class="form-control" />
+                <input asp-for="TasaInteresAnual" type="number" step="0.0001"
+                       min="0" max="100" class="form-control"
+                       data-val-required="La tasa de interés es obligatoria."
+                       data-val-number="La tasa de interés debe ser un número."
+                       data-msg-min="La tasa de interés no puede ser negativa."
+                       data-msg-max="La tasa de interés no puede ser mayor a 100."
+                       data-msg-step="La tasa de interés admite como máximo 4 decimales." />
                 <span asp-validation-for="TasaInteresAnual" class="text-danger"></span>
             </div>
 
@@ -75,7 +88,13 @@
                 <label asp-for="PlazoMeses" class="control-label">
                     Plazo en meses
                 </label>
-                <input asp-for="PlazoMeses" class="form-control" />
+                <input asp-for="PlazoMeses" type="number" step="1"
+                       min="1" max="32767" class="form-control"
+                       data-val-required="El plazo es obligatorio."
+                       data-val-number="El plazo debe ser un número."
+                       data-msg-min="El plazo debe ser mayor que cero."
+                       data-msg-max="El plazo no puede ser mayor a 32767 meses."
+                       data-msg-step="El plazo debe ser un número entero." />
                 <span asp-validation-for="PlazoMeses" class="text-danger"></span>
             </div>
 
@@ -83,7 +102,8 @@
                 <label asp-for="FechaSolicitud" class="control-label">
                     Fecha de solicitud
                 </label>
-                <input asp-for="FechaSolicitud" class="form-control" type="date" />
+                <input asp-for="FechaSolicitud" class="form-control" type="date"
+                       data-val-required="La fecha de solicitud es obligatoria." />
                 <span asp-validation-for="FechaSolicitud" class="text-danger"></span>
             </div>
 
