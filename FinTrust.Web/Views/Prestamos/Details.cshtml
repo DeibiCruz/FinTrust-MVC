@@ -1,0 +1,41 @@
+@model FinTrust.Web.Models.Prestamo
+
+@{
+    ViewData["Title"] = "Detalles del préstamo";
+}
+
+<h1>Detalles del préstamo</h1>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Número de préstamo</dt>
+    <dd class="col-sm-9">@Model.NumeroPrestamo</dd>
+
+    <dt class="col-sm-3">Socio solicitante</dt>
+    <dd class="col-sm-9">@Model.SocioSolicitante?.CodigoSocio</dd>
+
+    <dt class="col-sm-3">Capital</dt>
+    <dd class="col-sm-9">@Model.Capital.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Tasa de interés anual</dt>
+    <dd class="col-sm-9">@Model.TasaInteresAnual.ToString("N2") %</dd>
+
+    <dt class="col-sm-3">Plazo</dt>
+    <dd class="col-sm-9">@Model.PlazoMeses meses</dd>
+
+    <dt class="col-sm-3">Fecha de solicitud</dt>
+    <dd class="col-sm-9">@Model.FechaSolicitud.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Fecha de desembolso</dt>
+    <dd class="col-sm-9">
+        @(Model.FechaDesembolso?.ToString("dd/MM/yyyy") ?? "Sin desembolso")
+    </dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.PrestamoId"
+   class="btn btn-primary">Editar</a>
+
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

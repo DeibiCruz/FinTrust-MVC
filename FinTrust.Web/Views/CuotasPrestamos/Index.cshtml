@@ -1,0 +1,50 @@
+@model IEnumerable<FinTrust.Web.Models.CuotaPrestamo>
+
+@{
+    ViewData["Title"] = "Cuotas de préstamos";
+}
+
+<h1>Cuotas de préstamos</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Registrar cuota
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Número de cuota</th>
+            <th>Préstamo</th>
+            <th>Fecha de vencimiento</th>
+            <th>Capital programado (Bs)</th>
+            <th>Interés programado (Bs)</th>
+            <th>Total (Bs)</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NumeroCuota</td>
+                <td>@item.Prestamo?.NumeroPrestamo</td>
+                <td>@item.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+                <td>@item.CapitalProgramado.ToString("N2")</td>
+                <td>@item.InteresProgramado.ToString("N2")</td>
+                <td>@((item.CapitalProgramado + item.InteresProgramado).ToString("N2"))</td>
+                <td>@item.Estado</td>
+                <td>
+                    <a asp-action="Edit"
+                       asp-route-id="@item.CuotaId">Editar</a> |
+                    <a asp-action="Details"
+                       asp-route-id="@item.CuotaId">Detalles</a> |
+                    <a asp-action="Delete"
+                       asp-route-id="@item.CuotaId">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

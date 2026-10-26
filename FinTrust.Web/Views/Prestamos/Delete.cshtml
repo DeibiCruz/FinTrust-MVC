@@ -1,0 +1,41 @@
+@model FinTrust.Web.Models.Prestamo
+
+@{
+    ViewData["Title"] = "Eliminar préstamo";
+}
+
+<h1>Eliminar préstamo</h1>
+
+<h4>¿Estás seguro de eliminar este préstamo?</h4>
+<hr />
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<dl class="row">
+    <dt class="col-sm-3">Número de préstamo</dt>
+    <dd class="col-sm-9">@Model.NumeroPrestamo</dd>
+
+    <dt class="col-sm-3">Capital</dt>
+    <dd class="col-sm-9">@Model.Capital.ToString("N2") Bs</dd>
+
+    <dt class="col-sm-3">Tasa anual</dt>
+    <dd class="col-sm-9">@Model.TasaInteresAnual.ToString("N2") %</dd>
+
+    <dt class="col-sm-3">Plazo</dt>
+    <dd class="col-sm-9">@Model.PlazoMeses meses</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+</dl>
+
+<form asp-action="Delete" asp-route-id="@Model.PrestamoId" method="post">
+    <input type="hidden" name="id" value="@Model.PrestamoId" />
+
+    <button type="submit" class="btn btn-danger">
+        Eliminar
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancelar
+    </a>
+</form>

@@ -1,0 +1,55 @@
+@model IEnumerable<FinTrust.Web.Models.PagoCuotum>
+
+@{
+    ViewData["Title"] = "Pagos de cuotas";
+}
+
+<h1>Pagos de cuotas</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Registrar pago
+    </a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No hay pagos de cuotas registrados.
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Préstamo</th>
+                <th>Cuota</th>
+                <th>Operación financiera</th>
+                <th>Monto aplicado (Bs)</th>
+                <th>Fecha de pago</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Cuota?.Prestamo?.NumeroPrestamo</td>
+                    <td>Cuota @item.Cuota?.NumeroCuota</td>
+                    <td>#@item.OperacionId - @item.Operacion?.TipoOperacion</td>
+                    <td>@item.MontoAplicado.ToString("N2")</td>
+                    <td>@item.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <a asp-action="Edit"
+                           asp-route-id="@item.PagoCuotaId">Editar</a> |
+                        <a asp-action="Details"
+                           asp-route-id="@item.PagoCuotaId">Detalles</a> |
+                        <a asp-action="Delete"
+                           asp-route-id="@item.PagoCuotaId">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

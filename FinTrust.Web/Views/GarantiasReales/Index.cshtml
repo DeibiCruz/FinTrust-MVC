@@ -1,0 +1,51 @@
+﻿@model IEnumerable<FinTrust.Web.Models.GarantiaReal>
+
+@{
+    ViewData["Title"] = "Garantías reales";
+}
+
+<h1>Garantías reales</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Registrar garantía
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Préstamo</th>
+            <th>Propietario</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor tasado (Bs)</th>
+            <th>Fecha de valuación</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Prestamo?.NumeroPrestamo</td>
+                <td>
+                    @item.PersonaPropietaria?.Nombres
+                    @item.PersonaPropietaria?.Apellidos
+                </td>
+                <td>@item.TipoGarantia</td>
+                <td>@item.Descripcion</td>
+                <td>@item.ValorTasado.ToString("N2")</td>
+                <td>@item.FechaValuacion</td>
+                <td>
+                    <a asp-action="Edit"
+                       asp-route-id="@item.GarantiaId">Editar</a> |
+                    <a asp-action="Details"
+                       asp-route-id="@item.GarantiaId">Detalles</a> |
+                    <a asp-action="Delete"
+                       asp-route-id="@item.GarantiaId">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

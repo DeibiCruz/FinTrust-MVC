@@ -1,0 +1,59 @@
+﻿@model FinTrust.Web.Models.PrestamoGarante
+
+@{
+    ViewData["Title"] = "Eliminar garante";
+}
+
+<h1>Eliminar garante</h1>
+
+<h3>¿Está seguro de eliminar este garante del préstamo?</h3>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">
+        Préstamo
+    </dt>
+    <dd class="col-sm-9">
+        @Model.Prestamo?.NumeroPrestamo
+    </dd>
+
+    <dt class="col-sm-3">
+        Persona garante
+    </dt>
+    <dd class="col-sm-9">
+        @Model.PersonaGarante?.Nombres
+        @Model.PersonaGarante?.Apellidos
+    </dd>
+
+    <dt class="col-sm-3">
+        Tipo de responsabilidad
+    </dt>
+    <dd class="col-sm-9">
+        @Model.TipoResponsabilidad
+    </dd>
+
+    <dt class="col-sm-3">
+        Monto respaldado
+    </dt>
+    <dd class="col-sm-9">
+        @Model.MontoRespaldado?.ToString("N2") Bs
+    </dd>
+</dl>
+
+<form asp-action="Delete"
+      asp-route-prestamoId="@Model.PrestamoId"
+      asp-route-personaGaranteId="@Model.PersonaGaranteId"
+      method="post">
+
+    <input type="hidden" asp-for="PrestamoId" />
+    <input type="hidden" asp-for="PersonaGaranteId" />
+
+    <button type="submit" class="btn btn-danger">
+        Eliminar
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancelar
+    </a>
+</form>

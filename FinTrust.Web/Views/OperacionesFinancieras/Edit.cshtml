@@ -1,0 +1,64 @@
+@model FinTrust.Web.Models.OperacionFinanciera
+
+@{
+    ViewData["Title"] = "Editar operación";
+}
+
+<h1>Editar operación financiera</h1>
+<p class="text-muted">Actualiza los datos de la operación @Model.OperacionId.</p>
+<hr />
+
+<div class="row">
+    <div class="col-lg-6">
+        <form asp-action="Edit" asp-route-id="@Model.OperacionId">
+            <input type="hidden" asp-for="OperacionId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="TipoOperacion" class="form-label">Tipo de operación</label>
+                <select asp-for="TipoOperacion" class="form-select">
+                    <option value="">Selecciona una opción</option>
+                    <option value="DEPOSITO">Depósito</option>
+                    <option value="RETIRO">Retiro</option>
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                    <option value="PAGO_CUOTA">Pago de cuota</option>
+                    <option value="DESEMBOLSO">Desembolso</option>
+                </select>
+                <span asp-validation-for="TipoOperacion" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FechaHora" class="form-label">Fecha y hora</label>
+                <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+                <span asp-validation-for="FechaHora" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Monto" class="form-label">Monto en bolivianos</label>
+                <input asp-for="Monto" type="number" min="0.01" step="0.01" class="form-control" />
+                <span asp-validation-for="Monto" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SocioEjecutorId" class="form-label">Socio ejecutor</label>
+                <select asp-for="SocioEjecutorId" asp-items="ViewBag.SocioEjecutorId" class="form-select">
+                    <option value="">Sin socio ejecutor</option>
+                </select>
+                <span asp-validation-for="SocioEjecutorId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Referencia" class="form-label">Referencia</label>
+                <input asp-for="Referencia" maxlength="80" class="form-control" />
+                <span asp-validation-for="Referencia" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
