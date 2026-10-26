@@ -1,0 +1,118 @@
+@model FinTrust.Web.Models.Prestamo
+
+@{
+    ViewData["Title"] = "Editar préstamo";
+}
+
+<h1>Editar préstamo</h1>
+<h4>Datos del préstamo</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" asp-route-id="@Model.PrestamoId" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <input type="hidden" asp-for="PrestamoId" />
+
+            <div class="form-group mb-3">
+                <label asp-for="NumeroPrestamo" class="control-label">Número de préstamo</label>
+                <input asp-for="NumeroPrestamo" class="form-control" />
+                <span asp-validation-for="NumeroPrestamo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="SocioSolicitanteId" class="control-label">Socio solicitante</label>
+                <select asp-for="SocioSolicitanteId"
+                        asp-items="ViewBag.SocioSolicitanteId"
+                        class="form-select">
+                    <option value="">Seleccione un socio</option>
+                </select>
+                <span asp-validation-for="SocioSolicitanteId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CuentaDesembolsoId" class="control-label">
+                    Cuenta de desembolso (opcional)
+                </label>
+                <select asp-for="CuentaDesembolsoId"
+                        asp-items="ViewBag.CuentaDesembolsoId"
+                        class="form-select">
+                    <option value="">Sin cuenta de desembolso</option>
+                </select>
+                <span asp-validation-for="CuentaDesembolsoId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EmpleadoAprobadorId" class="control-label">
+                    Empleado aprobador (opcional)
+                </label>
+                <select asp-for="EmpleadoAprobadorId"
+                        asp-items="ViewBag.EmpleadoAprobadorId"
+                        class="form-select">
+                    <option value="">Sin empleado aprobador</option>
+                </select>
+                <span asp-validation-for="EmpleadoAprobadorId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Capital" class="control-label">Capital</label>
+                <input asp-for="Capital" type="number" step="0.01"
+                       min="0.01" class="form-control" />
+                <span asp-validation-for="Capital" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="TasaInteresAnual" class="control-label">
+                    Tasa de interés anual
+                </label>
+                <input asp-for="TasaInteresAnual" type="number" step="0.01"
+                       min="0" max="100" class="form-control" />
+                <span asp-validation-for="TasaInteresAnual" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PlazoMeses" class="control-label">Plazo en meses</label>
+                <input asp-for="PlazoMeses" class="form-control" />
+                <span asp-validation-for="PlazoMeses" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="FechaSolicitud" class="control-label">Fecha de solicitud</label>
+                <input asp-for="FechaSolicitud" class="form-control" type="date" />
+                <span asp-validation-for="FechaSolicitud" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="FechaDesembolso" class="control-label">
+                    Fecha de desembolso (opcional)
+                </label>
+                <input asp-for="FechaDesembolso" class="form-control" type="date" />
+                <span asp-validation-for="FechaDesembolso" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Estado" class="control-label">Estado</label>
+                <select asp-for="Estado" class="form-select">
+                    <option value="SOLICITADO">SOLICITADO</option>
+                    <option value="APROBADO">APROBADO</option>
+                    <option value="RECHAZADO">RECHAZADO</option>
+                    <option value="DESEMBOLSADO">DESEMBOLSADO</option>
+                    <option value="CANCELADO">CANCELADO</option>
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <a asp-action="Index" class="btn btn-secondary">Volver</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
