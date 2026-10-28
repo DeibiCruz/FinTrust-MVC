@@ -15,6 +15,19 @@ builder.Services.AddDbContext<FinTrustDbContext>(options =>
 
 var app = builder.Build();
 
+// Crear o actualizar la base de datos con las migraciones
+using (var scope = app.Services.CreateScope())
+{
+    var contexto = scope.ServiceProvider.GetRequiredService<FinTrustDbContext>();
+    contexto.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
+    contexto.Database.Migrate();
+
+    if (app.Environment.IsDevelopment())
+    {
+        DatosDePrueba.Cargar(contexto);
+    }
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

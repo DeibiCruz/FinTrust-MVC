@@ -16,7 +16,14 @@ public class SociosController : Controller
     // GET: SOCIOS
     public async Task<IActionResult> Index()
     {
-        return View(await _context.Socios.ToListAsync());
+        return View(await _context.Socios
+            .AsNoTracking()
+            .Include(s => s.Persona)
+            .Include(s => s.CuentaSocios)
+            .Include(s => s.Prestamos)
+            .Include(s => s.OperacionFinancieras)
+            .OrderBy(s => s.CodigoSocio)
+            .ToListAsync());
     }
 
     // GET: SOCIOS/Details/5
@@ -28,6 +35,8 @@ public class SociosController : Controller
         }
 
         var socio = await _context.Socios
+            .AsNoTracking()
+            .Include(s => s.Persona)
             .FirstOrDefaultAsync(m => m.SocioId == id);
         if (socio == null)
         {
@@ -138,6 +147,8 @@ public class SociosController : Controller
         }
 
         var socio = await _context.Socios
+            .AsNoTracking()
+            .Include(s => s.Persona)
             .FirstOrDefaultAsync(m => m.SocioId == id);
         if (socio == null)
         {
@@ -166,9 +177,16 @@ public class SociosController : Controller
         catch (DbUpdateException)
         {
             ModelState.AddModelError("", "No se pudo eliminar el socio. Puede tener cuentas, préstamos u operaciones relacionadas.");
-            return View("Delete", socio);
+
+            var socioVista = await _context.Socios
+                .AsNoTracking()
+                .Include(s => s.Persona)
+                .FirstAsync(s => s.SocioId == id);
+
+            return View("Delete", socioVista);
         }
 
+        TempData["Mensaje"] = "Socio eliminado correctamente.";
         return RedirectToAction(nameof(Index));
     }
 

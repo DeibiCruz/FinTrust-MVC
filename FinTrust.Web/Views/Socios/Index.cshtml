@@ -10,71 +10,47 @@
         <h1>Socios</h1>
         <p class="page-subtitle">Consulta y administra los socios registrados en FinTrust.</p>
     </div>
-    <a asp-action="Create" class="btn btn-primary">+ Crear socio</a>
+    <a asp-action="Create" class="btn btn-primary">Registrar socio</a>
 </div>
 
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No hay socios registrados.
+    </div>
+}
+else
+{
 <div class="table-card">
 <table class="table table-hover align-middle mb-0">
     <thead>
         <tr>
-            <th>
-                Persona
-            </th>
-            <th>
-                Código de socio
-            </th>
-            <th>
-                Fecha de ingreso
-            </th>
-            <th>
-                Estado
-            </th>
-            <th>
-                Cuentas
-            </th>
-            <th>
-                Operaciones
-            </th>
-            <th>
-                Datos de persona
-            </th>
-            <th>
-                Préstamos
-            </th>
-            <th></th>
+            <th>Persona</th>
+            <th>Documento</th>
+            <th>Código de socio</th>
+            <th>Fecha de ingreso</th>
+            <th>Estado</th>
+            <th>Cuentas</th>
+            <th>Préstamos</th>
+            <th>Operaciones</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(model => item.PersonaId)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.CodigoSocio)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.FechaIngreso)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.Estado)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.CuentaSocios)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.OperacionFinancieras)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.Persona)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.Prestamos)
-                </td>
+                <td>@item.Persona?.Nombres @item.Persona?.Apellidos</td>
+                <td>@item.Persona?.DocumentoIdentidad</td>
+                <td>@item.CodigoSocio</td>
+                <td>@item.FechaIngreso.ToString("dd/MM/yyyy")</td>
+                <td>@item.Estado</td>
+                <td>@item.CuentaSocios.Count</td>
+                <td>@item.Prestamos.Count</td>
+                <td>@item.OperacionFinancieras.Count</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.SocioId" class="action-link">Editar</a>
-                    <a asp-action="Details" asp-route-id="@item.SocioId" class="action-link">Ver</a>
+                    <a asp-action="Details" asp-route-id="@item.SocioId" class="action-link">Detalles</a>
                     <a asp-action="Delete" asp-route-id="@item.SocioId" class="action-link action-danger">Eliminar</a>
                 </td>
             </tr>
@@ -82,3 +58,4 @@
     </tbody>
 </table>
 </div>
+}

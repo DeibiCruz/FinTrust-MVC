@@ -1,17 +1,17 @@
 @model FinTrust.Web.Models.Cuentum
 
 @{
-    ViewData["Title"] = "Crear cuenta";
+    ViewData["Title"] = "Registrar cuenta";
 }
 
-<h1>Crear cuenta</h1>
+<h1>Registrar cuenta</h1>
 <p>Después de guardar podrás asociar titulares y cotitulares.</p>
 <div class="row">
     <div class="col-md-6">
         <form asp-action="Create" method="post">
             <partial name="_Formulario" model="Model" />
-            <button type="submit" class="btn btn-primary">Crear</button>
-            <a asp-action="Index">Volver a la lista</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
         </form>
     </div>
 </div>

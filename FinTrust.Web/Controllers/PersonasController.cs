@@ -189,6 +189,7 @@ public class PersonasController : Controller
             return View("Delete", persona);
         }
 
+        TempData["Mensaje"] = "Persona eliminada correctamente.";
         return RedirectToAction(nameof(Index));
     }
     private async Task ValidarPersona(Persona persona)

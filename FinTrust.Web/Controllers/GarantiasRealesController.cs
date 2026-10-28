@@ -65,6 +65,7 @@ public class GarantiasRealesController : Controller
                 _context.GarantiaReals.Add(garantia);
                 await _context.SaveChangesAsync();
 
+                TempData["Mensaje"] = "Garantía registrada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -123,6 +124,7 @@ public class GarantiasRealesController : Controller
             {
                 await _context.SaveChangesAsync();
 
+                TempData["Mensaje"] = "Garantía actualizada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -163,6 +165,7 @@ public class GarantiasRealesController : Controller
         _context.GarantiaReals.Remove(garantia);
         await _context.SaveChangesAsync();
 
+        TempData["Mensaje"] = "Garantía eliminada correctamente.";
         return RedirectToAction(nameof(Index));
     }
 

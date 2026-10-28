@@ -8,36 +8,23 @@
 <hr />
 
 <dl class="row">
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.PersonaId)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.PersonaId)
-    </dd>
+    <dt class="col-sm-3">Persona</dt>
+    <dd class="col-sm-9">@Model.Persona?.Nombres @Model.Persona?.Apellidos</dd>
 
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.CodigoSocio)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.CodigoSocio)
-    </dd>
+    <dt class="col-sm-3">Documento de identidad</dt>
+    <dd class="col-sm-9">@Model.Persona?.DocumentoIdentidad</dd>
 
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.FechaIngreso)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.FechaIngreso)
-    </dd>
+    <dt class="col-sm-3">Código de socio</dt>
+    <dd class="col-sm-9">@Model.CodigoSocio</dd>
 
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Estado)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Estado)
-    </dd>
+    <dt class="col-sm-3">Fecha de ingreso</dt>
+    <dd class="col-sm-9">@Model.FechaIngreso.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
 </dl>
 
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.SocioId">Editar</a> |
-    <a asp-action="Index">Volver a la lista</a>
+    <a asp-action="Edit" asp-route-id="@Model.SocioId" class="btn btn-primary">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
 </div>

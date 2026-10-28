@@ -12,6 +12,8 @@ public class PagosCuotasController : Controller
 {
     private const decimal ImporteMaximo = 9999999999999999.99m;
 
+    private const string TipoPagoCuota = "PAGO_CUOTA";
+
     private readonly FinTrustDbContext _context;
 
     public PagosCuotasController(FinTrustDbContext context)
@@ -270,6 +272,23 @@ public class PagosCuotasController : Controller
 
         if (pagoIdActual == null)
         {
+            if (operacion.TipoOperacion != TipoPagoCuota)
+            {
+                ModelState.AddModelError(
+                    nameof(PagoCuotum.OperacionId),
+                    "Solo se pueden aplicar operaciones de tipo PAGO_CUOTA.");
+            }
+
+            bool prestamoDesembolsado = await _context.Prestamos.AnyAsync(p =>
+                p.PrestamoId == cuota.PrestamoId && p.Estado == "DESEMBOLSADO");
+
+            if (!prestamoDesembolsado)
+            {
+                ModelState.AddModelError(
+                    nameof(PagoCuotum.CuotaId),
+                    "Solo se pueden registrar pagos de cuotas de préstamos DESEMBOLSADOS.");
+            }
+
             bool repetido = await _context.PagoCuota
                 .AnyAsync(p =>
                     p.CuotaId == pago.CuotaId &&
@@ -366,6 +385,7 @@ public class PagosCuotasController : Controller
     {
         var cuotas = _context.CuotaPrestamos
             .AsNoTracking()
+            .Where(c => c.Prestamo.Estado == "DESEMBOLSADO")
             .OrderBy(c => c.Prestamo.NumeroPrestamo)
             .ThenBy(c => c.NumeroCuota)
             .Select(c => new
@@ -388,6 +408,7 @@ public class PagosCuotasController : Controller
 
         var operaciones = _context.OperacionFinancieras
             .AsNoTracking()
+            .Where(o => o.TipoOperacion == TipoPagoCuota)
             .OrderByDescending(o => o.OperacionId)
             .Select(o => new
             {

@@ -54,6 +54,6 @@
     <form asp-controller="Personas" asp-action="Delete" asp-route-id="@Model.PersonaId" method="post">
         <input type="hidden" name="id" value="@Model.PersonaId" />
         <input type="submit" value="Eliminar" class="btn btn-danger" />
-    <a asp-action="Index">Volver a la lista</a>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>

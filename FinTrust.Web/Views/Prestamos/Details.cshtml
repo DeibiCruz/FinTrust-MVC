@@ -12,13 +12,17 @@
     <dd class="col-sm-9">@Model.NumeroPrestamo</dd>
 
     <dt class="col-sm-3">Socio solicitante</dt>
-    <dd class="col-sm-9">@Model.SocioSolicitante?.CodigoSocio</dd>
+    <dd class="col-sm-9">
+        @Model.SocioSolicitante?.CodigoSocio -
+        @Model.SocioSolicitante?.Persona?.Nombres
+        @Model.SocioSolicitante?.Persona?.Apellidos
+    </dd>
 
     <dt class="col-sm-3">Capital</dt>
     <dd class="col-sm-9">@Model.Capital.ToString("N2") Bs</dd>
 
     <dt class="col-sm-3">Tasa de interés anual</dt>
-    <dd class="col-sm-9">@Model.TasaInteresAnual.ToString("N2") %</dd>
+    <dd class="col-sm-9">@Model.TasaInteresAnual.ToString("0.00##") %</dd>
 
     <dt class="col-sm-3">Plazo</dt>
     <dd class="col-sm-9">@Model.PlazoMeses meses</dd>
@@ -31,11 +35,29 @@
         @(Model.FechaDesembolso?.ToString("dd/MM/yyyy") ?? "Sin desembolso")
     </dd>
 
+    <dt class="col-sm-3">Cuenta de desembolso</dt>
+    <dd class="col-sm-9">@(Model.CuentaDesembolso?.NumeroCuenta ?? "Sin cuenta de desembolso")</dd>
+
+    <dt class="col-sm-3">Empleado aprobador</dt>
+    <dd class="col-sm-9">
+        @if (Model.EmpleadoAprobador != null)
+        {
+            @($"{Model.EmpleadoAprobador.Persona?.Nombres} {Model.EmpleadoAprobador.Persona?.Apellidos} ({Model.EmpleadoAprobador.Cargo})")
+        }
+        else
+        {
+            <text>Sin empleado aprobador</text>
+        }
+    </dd>
+
     <dt class="col-sm-3">Estado</dt>
     <dd class="col-sm-9">@Model.Estado</dd>
 </dl>
 
 <a asp-action="Edit" asp-route-id="@Model.PrestamoId"
    class="btn btn-primary">Editar</a>
+
+<a asp-controller="ReportesPrestamos" asp-action="Details" asp-route-id="@Model.PrestamoId"
+   class="btn btn-outline-primary">Ver cuotas y pagos</a>
 
 <a asp-action="Index" class="btn btn-secondary">Volver</a>

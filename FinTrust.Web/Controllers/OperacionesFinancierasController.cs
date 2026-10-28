@@ -8,6 +8,11 @@ namespace FinTrust.Web.Controllers;
 
 public class OperacionesFinancierasController : Controller
 {
+    private static readonly string[] TiposPermitidos =
+    {
+        "DEPOSITO", "RETIRO", "TRANSFERENCIA", "PAGO_CUOTA", "DESEMBOLSO"
+    };
+
     private readonly FinTrustDbContext _context;
 
     public OperacionesFinancierasController(FinTrustDbContext context)
@@ -77,6 +82,7 @@ public class OperacionesFinancierasController : Controller
             {
                 _context.Add(operacion);
                 await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Operación registrada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -130,6 +136,7 @@ public class OperacionesFinancierasController : Controller
             {
                 _context.Update(operacion);
                 await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Operación actualizada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
@@ -202,6 +209,7 @@ public class OperacionesFinancierasController : Controller
             return View("Delete", operacion);
         }
 
+        TempData["Mensaje"] = "Operación eliminada correctamente.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -217,11 +225,11 @@ public class OperacionesFinancierasController : Controller
                 nameof(OperacionFinanciera.TipoOperacion),
                 "Selecciona el tipo de operación.");
         }
-        else if (operacion.TipoOperacion.Trim().Length > 20)
+        else if (!TiposPermitidos.Contains(operacion.TipoOperacion.Trim().ToUpperInvariant()))
         {
             ModelState.AddModelError(
                 nameof(OperacionFinanciera.TipoOperacion),
-                "El tipo de operación admite hasta 20 caracteres.");
+                "Selecciona un tipo de operación válido.");
         }
 
         if (operacion.FechaHora == default)
@@ -243,6 +251,30 @@ public class OperacionesFinancierasController : Controller
             ModelState.AddModelError(
                 nameof(OperacionFinanciera.Referencia),
                 "La referencia admite hasta 80 caracteres.");
+        }
+
+        if (operacion.OperacionId > 0)
+        {
+            decimal montoAplicado = await _context.PagoCuota
+                .Where(p => p.OperacionId == operacion.OperacionId)
+                .SumAsync(p => (decimal?)p.MontoAplicado) ?? 0;
+
+            if (montoAplicado > 0)
+            {
+                if (operacion.Monto < montoAplicado)
+                {
+                    ModelState.AddModelError(
+                        nameof(OperacionFinanciera.Monto),
+                        $"El monto no puede ser menor a lo ya aplicado a cuotas ({montoAplicado:N2} Bs).");
+                }
+
+                if (operacion.TipoOperacion?.Trim().ToUpperInvariant() != "PAGO_CUOTA")
+                {
+                    ModelState.AddModelError(
+                        nameof(OperacionFinanciera.TipoOperacion),
+                        "No se puede cambiar el tipo de una operación que ya tiene pagos de cuotas aplicados.");
+                }
+            }
         }
 
         if (operacion.SocioEjecutorId is int socioId &&

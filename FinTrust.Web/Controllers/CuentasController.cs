@@ -47,6 +47,7 @@ public class CuentasController : Controller
             {
                 _context.Cuenta.Add(cuenta);
                 await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Cuenta registrada correctamente.";
                 return RedirectToAction(nameof(Details), new { id = cuenta.CuentaId });
             }
             catch (DbUpdateException)
@@ -71,6 +72,9 @@ public class CuentasController : Controller
         var existente = await _context.Cuenta.FindAsync(id);
         if (existente == null) return NotFound();
         await ValidarCuenta(cuenta);
+        if (cuenta.SaldoActual != existente.SaldoActual
+            && await _context.MovimientoCuenta.AnyAsync(m => m.CuentaId == id))
+            ModelState.AddModelError(nameof(cuenta.SaldoActual), "No se puede modificar el saldo de una cuenta que ya tiene movimientos registrados.");
         if (ModelState.IsValid)
         {
             existente.NumeroCuenta = cuenta.NumeroCuenta;
@@ -82,6 +86,7 @@ public class CuentasController : Controller
             try
             {
                 await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Cuenta actualizada correctamente.";
                 return RedirectToAction(nameof(Details), new { id });
             }
             catch (DbUpdateConcurrencyException)
@@ -120,6 +125,7 @@ public class CuentasController : Controller
             _context.CuentaSocios.RemoveRange(cuenta.CuentaSocios);
             _context.Cuenta.Remove(cuenta);
             await _context.SaveChangesAsync();
+            TempData["Mensaje"] = "Cuenta eliminada correctamente.";
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException)
@@ -133,7 +139,10 @@ public class CuentasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Vincular(int id, int socioId, string rol, bool puedeOperar)
     {
-        if (!await _context.Cuenta.AnyAsync(c => c.CuentaId == id)) return NotFound();
+        var cuenta = await _context.Cuenta.AsNoTracking().FirstOrDefaultAsync(c => c.CuentaId == id);
+        if (cuenta == null) return NotFound();
+        if (cuenta.Estado == "CERRADA")
+            ModelState.AddModelError("", "No se pueden asociar socios a una cuenta cerrada.");
         if (!await _context.Socios.AnyAsync(s => s.SocioId == socioId))
             ModelState.AddModelError("", "Selecciona un socio existente.");
         if (rol != "TITULAR" && rol != "COTITULAR")
@@ -158,6 +167,7 @@ public class CuentasController : Controller
             ModelState.AddModelError("", "No se pudo asociar al socio. Comprueba que siga disponible y no esté duplicado.");
             return await MostrarDetalle(id);
         }
+        TempData["Mensaje"] = "Socio asociado correctamente.";
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -169,6 +179,8 @@ public class CuentasController : Controller
         if (vinculo == null) return NotFound();
         if (rol != "TITULAR" && rol != "COTITULAR")
             ModelState.AddModelError("", "Selecciona titular o cotitular.");
+        else if (vinculo.Rol == "TITULAR" && rol != "TITULAR" && !await HayOtroTitular(id, socioId))
+            ModelState.AddModelError("", "La cuenta debe conservar al menos un titular.");
         if (!ModelState.IsValid) return await MostrarDetalle(id);
         vinculo.Rol = rol;
         vinculo.PuedeOperar = puedeOperar;
@@ -181,6 +193,7 @@ public class CuentasController : Controller
             ModelState.AddModelError("", "No se pudo actualizar la asociación. Recarga la cuenta e inténtalo nuevamente.");
             return await MostrarDetalle(id);
         }
+        TempData["Mensaje"] = "Asociación actualizada correctamente.";
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -190,6 +203,11 @@ public class CuentasController : Controller
     {
         var vinculo = await _context.CuentaSocios.FindAsync(id, socioId);
         if (vinculo == null) return NotFound();
+        if (vinculo.Rol == "TITULAR" && !await HayOtroTitular(id, socioId))
+        {
+            ModelState.AddModelError("", "No se puede quitar al único titular de la cuenta.");
+            return await MostrarDetalle(id);
+        }
         _context.CuentaSocios.Remove(vinculo);
         try
         {
@@ -200,7 +218,13 @@ public class CuentasController : Controller
             ModelState.AddModelError("", "No se pudo quitar la asociación. Recarga la cuenta e inténtalo nuevamente.");
             return await MostrarDetalle(id);
         }
+        TempData["Mensaje"] = "Socio quitado de la cuenta correctamente.";
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+    private Task<bool> HayOtroTitular(int cuentaId, int socioId)
+    {
+        return _context.CuentaSocios.AnyAsync(cs => cs.CuentaId == cuentaId && cs.SocioId != socioId && cs.Rol == "TITULAR");
     }
 
     private async Task<IActionResult> MostrarDetalle(int id)

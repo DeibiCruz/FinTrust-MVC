@@ -1,10 +1,10 @@
 @model FinTrust.Web.Models.OperacionFinanciera
 
 @{
-    ViewData["Title"] = "Nueva operación";
+    ViewData["Title"] = "Registrar operación";
 }
 
-<h1>Nueva operación financiera</h1>
+<h1>Registrar operación financiera</h1>
 <p class="text-muted">Completa los datos para registrar la operación.</p>
 <hr />
 
@@ -52,8 +52,8 @@
                 <span asp-validation-for="Referencia" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Registrar operación</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
         </form>
     </div>
 </div>

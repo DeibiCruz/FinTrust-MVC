@@ -60,7 +60,7 @@ public class CuotasPrestamosController : Controller
     {
         LimpiarModelState();
 
-        await ValidarCuota(cuota, null);
+        await ValidarCuota(cuota, null, true);
 
         if (ModelState.IsValid)
         {
@@ -124,7 +124,7 @@ public class CuotasPrestamosController : Controller
 
         LimpiarModelState();
 
-        await ValidarCuota(cuota, id);
+        await ValidarCuota(cuota, id, registro.PrestamoId != cuota.PrestamoId);
 
         if (registro.PrestamoId != cuota.PrestamoId)
         {
@@ -239,7 +239,7 @@ public class CuotasPrestamosController : Controller
         return View("Delete", cuotaVista);
     }
 
-    private async Task ValidarCuota(CuotaPrestamo cuota, int? cuotaIdActual)
+    private async Task ValidarCuota(CuotaPrestamo cuota, int? cuotaIdActual, bool validarEstadoPrestamo)
     {
         ReemplazarError(nameof(CuotaPrestamo.PrestamoId), "Seleccione un préstamo.");
         ReemplazarError(nameof(CuotaPrestamo.NumeroCuota), "Ingrese un número de cuota válido (entre 1 y 32767).");
@@ -289,6 +289,39 @@ public class CuotasPrestamosController : Controller
                     nameof(CuotaPrestamo.NumeroCuota),
                     "Ya existe una cuota con este número en el préstamo seleccionado.");
             }
+        }
+
+        var prestamo = await _context.Prestamos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.PrestamoId == cuota.PrestamoId);
+
+        if (prestamo == null)
+            return;
+
+        if (validarEstadoPrestamo && prestamo.Estado != "DESEMBOLSADO")
+        {
+            ModelState.AddModelError(
+                nameof(CuotaPrestamo.PrestamoId),
+                "Solo se pueden registrar cuotas de préstamos DESEMBOLSADOS.");
+        }
+
+        if (cuota.NumeroCuota > prestamo.PlazoMeses)
+        {
+            ModelState.AddModelError(
+                nameof(CuotaPrestamo.NumeroCuota),
+                $"El número de cuota no puede ser mayor al plazo del préstamo ({prestamo.PlazoMeses} meses).");
+        }
+
+        decimal capitalOtrasCuotas = await _context.CuotaPrestamos
+            .Where(c => c.PrestamoId == cuota.PrestamoId &&
+                        (cuotaIdActual == null || c.CuotaId != cuotaIdActual))
+            .SumAsync(c => (decimal?)c.CapitalProgramado) ?? 0;
+
+        if (capitalOtrasCuotas + cuota.CapitalProgramado > prestamo.Capital)
+        {
+            ModelState.AddModelError(
+                nameof(CuotaPrestamo.CapitalProgramado),
+                $"El capital de las cuotas superaría el capital del préstamo. Disponible: {prestamo.Capital - capitalOtrasCuotas:N2} Bs.");
         }
     }
 
@@ -344,10 +377,10 @@ public class CuotasPrestamosController : Controller
                 .Select(p => new
                 {
                     p.PrestamoId,
-                    p.NumeroPrestamo
+                    Texto = p.NumeroPrestamo + " (" + p.Estado + ")"
                 })
                 .ToList(),
             "PrestamoId",
-            "NumeroPrestamo");
+            "Texto");
     }
 }

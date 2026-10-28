@@ -74,6 +74,11 @@ else
 }
 
 <div>
+    <a asp-controller="Prestamos" asp-action="Details" asp-route-id="@Model.PrestamoId"
+       class="btn btn-outline-primary">
+        Ver préstamo
+    </a>
+
     <a asp-action="Index" class="btn btn-secondary">
         Volver
     </a>

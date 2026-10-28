@@ -11,5 +11,5 @@
 <p>No se puede eliminar si tiene movimientos o préstamos relacionados.</p>
 <form asp-action="Delete" asp-route-id="@Model.CuentaId" method="post">
     <button type="submit" class="btn btn-danger">Eliminar</button>
-    <a asp-action="Details" asp-route-id="@Model.CuentaId">Cancelar</a>
+    <a asp-action="Details" asp-route-id="@Model.CuentaId" class="btn btn-secondary">Cancelar</a>
 </form>

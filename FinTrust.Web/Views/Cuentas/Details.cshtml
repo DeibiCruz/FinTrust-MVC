@@ -20,9 +20,9 @@
     <dd class="col-sm-9">@Model.Estado</dd>
 </dl>
 <p>
-    <a asp-action="Edit" asp-route-id="@Model.CuentaId">Editar cuenta</a> |
-    <a asp-action="Delete" asp-route-id="@Model.CuentaId">Eliminar cuenta</a> |
-    <a asp-action="Index">Volver a la lista</a>
+    <a asp-action="Edit" asp-route-id="@Model.CuentaId" class="btn btn-primary">Editar</a>
+    <a asp-action="Delete" asp-route-id="@Model.CuentaId" class="btn btn-danger">Eliminar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
 </p>
 
 <div asp-validation-summary="All" class="text-danger"></div>

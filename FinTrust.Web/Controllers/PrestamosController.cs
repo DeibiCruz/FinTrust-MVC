@@ -40,8 +40,10 @@ public class PrestamosController : Controller
 
         var prestamo = await _context.Prestamos
             .Include(p => p.SocioSolicitante)
+                .ThenInclude(s => s.Persona)
             .Include(p => p.CuentaDesembolso)
             .Include(p => p.EmpleadoAprobador)
+                .ThenInclude(e => e!.Persona)
             .FirstOrDefaultAsync(p => p.PrestamoId == id);
 
         if (prestamo == null)
@@ -69,6 +71,7 @@ public class PrestamosController : Controller
         ModelState.Remove(nameof(Prestamo.SocioSolicitante));
 
         await ValidarPrestamo(prestamo, null);
+        await ValidarReglasDelPrestamo(prestamo, null);
 
         if (ModelState.IsValid)
         {
@@ -77,6 +80,7 @@ public class PrestamosController : Controller
                 _context.Prestamos.Add(prestamo);
                 await _context.SaveChangesAsync();
 
+                TempData["Mensaje"] = "Préstamo registrado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -123,9 +127,19 @@ public class PrestamosController : Controller
             return NotFound();
         }
 
+        var original = await _context.Prestamos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.PrestamoId == id);
+
+        if (original == null)
+        {
+            return NotFound();
+        }
+
         ModelState.Remove(nameof(Prestamo.SocioSolicitante));
 
         await ValidarPrestamo(prestamo, id);
+        await ValidarReglasDelPrestamo(prestamo, original);
 
         if (ModelState.IsValid)
         {
@@ -151,6 +165,7 @@ public class PrestamosController : Controller
 
                 await _context.SaveChangesAsync();
 
+                TempData["Mensaje"] = "Préstamo actualizado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
@@ -233,6 +248,7 @@ public class PrestamosController : Controller
             return View("Delete", prestamo);
         }
 
+        TempData["Mensaje"] = "Préstamo eliminado correctamente.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -346,6 +362,127 @@ public class PrestamosController : Controller
             ModelState.AddModelError(
                 nameof(Prestamo.EmpleadoAprobadorId),
                 "El empleado seleccionado no existe.");
+        }
+    }
+
+    private async Task ValidarReglasDelPrestamo(Prestamo prestamo, Prestamo? original)
+    {
+        bool esNuevo = original == null;
+        bool cambioSocio = esNuevo || original!.SocioSolicitanteId != prestamo.SocioSolicitanteId;
+        bool cambioCuenta = esNuevo || original!.CuentaDesembolsoId != prestamo.CuentaDesembolsoId;
+
+        if (cambioSocio && !TieneError(nameof(Prestamo.SocioSolicitanteId)))
+        {
+            bool socioActivo = await _context.Socios.AnyAsync(s =>
+                s.SocioId == prestamo.SocioSolicitanteId && s.Estado == "ACTIVO");
+
+            if (!socioActivo)
+            {
+                ModelState.AddModelError(
+                    nameof(Prestamo.SocioSolicitanteId),
+                    "El socio solicitante debe estar ACTIVO.");
+            }
+        }
+
+        if (prestamo.CuentaDesembolsoId.HasValue &&
+            (cambioCuenta || cambioSocio) &&
+            !TieneError(nameof(Prestamo.CuentaDesembolsoId)))
+        {
+            var cuenta = await _context.Cuenta
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CuentaId == prestamo.CuentaDesembolsoId);
+
+            bool esDelSocio = await _context.CuentaSocios.AnyAsync(cs =>
+                cs.CuentaId == prestamo.CuentaDesembolsoId &&
+                cs.SocioId == prestamo.SocioSolicitanteId);
+
+            if (cuenta != null && cuenta.Estado != "ACTIVA")
+            {
+                ModelState.AddModelError(
+                    nameof(Prestamo.CuentaDesembolsoId),
+                    "La cuenta de desembolso debe estar ACTIVA.");
+            }
+            else if (cuenta != null && !esDelSocio)
+            {
+                ModelState.AddModelError(
+                    nameof(Prestamo.CuentaDesembolsoId),
+                    "La cuenta de desembolso debe pertenecer al socio solicitante.");
+            }
+        }
+
+        if (prestamo.FechaDesembolso.HasValue &&
+            prestamo.FechaDesembolso.Value < prestamo.FechaSolicitud)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.FechaDesembolso),
+                "La fecha de desembolso no puede ser anterior a la fecha de solicitud.");
+        }
+
+        if (prestamo.Estado == "DESEMBOLSADO")
+        {
+            if (!prestamo.FechaDesembolso.HasValue)
+            {
+                ModelState.AddModelError(
+                    nameof(Prestamo.FechaDesembolso),
+                    "Un prestamo DESEMBOLSADO debe tener fecha de desembolso.");
+            }
+
+            if (!prestamo.CuentaDesembolsoId.HasValue)
+            {
+                ModelState.AddModelError(
+                    nameof(Prestamo.CuentaDesembolsoId),
+                    "Un prestamo DESEMBOLSADO debe tener cuenta de desembolso.");
+            }
+        }
+
+        if (esNuevo)
+            return;
+
+        bool tieneCuotas = await _context.CuotaPrestamos
+            .AnyAsync(c => c.PrestamoId == original!.PrestamoId);
+
+        if (!tieneCuotas)
+            return;
+
+        if (prestamo.Capital != original!.Capital || prestamo.PlazoMeses != original.PlazoMeses)
+        {
+            ModelState.AddModelError(
+                "",
+                "No se puede cambiar el capital ni el plazo de un prestamo que ya tiene cuotas registradas.");
+        }
+
+        if (prestamo.SocioSolicitanteId != original.SocioSolicitanteId)
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.SocioSolicitanteId),
+                "No se puede cambiar el socio de un prestamo que ya tiene cuotas registradas.");
+        }
+
+        if (prestamo.Estado == original.Estado)
+            return;
+
+        if (prestamo.Estado != "DESEMBOLSADO" && prestamo.Estado != "CANCELADO")
+        {
+            ModelState.AddModelError(
+                nameof(Prestamo.Estado),
+                "Un prestamo con cuotas registradas solo puede estar DESEMBOLSADO o CANCELADO.");
+        }
+        else if (prestamo.Estado == "CANCELADO")
+        {
+            decimal totalProgramado = await _context.CuotaPrestamos
+                .Where(c => c.PrestamoId == original.PrestamoId)
+                .SumAsync(c => c.CapitalProgramado + c.InteresProgramado);
+
+            decimal totalPagado = await _context.PagoCuota
+                .Where(pg => pg.Cuota.PrestamoId == original.PrestamoId)
+                .SumAsync(pg => (decimal?)pg.MontoAplicado) ?? 0;
+
+            if (totalPagado < totalProgramado)
+            {
+                ModelState.AddModelError(
+                    nameof(Prestamo.Estado),
+                    $"Solo se puede marcar como CANCELADO cuando todas las cuotas estan pagadas. Saldo pendiente: {totalProgramado - totalPagado:N2} Bs.");
+            }
         }
     }
 

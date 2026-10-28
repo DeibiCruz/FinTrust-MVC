@@ -76,6 +76,17 @@ public class PrestamoGarantesController : Controller
                 "La persona seleccionada no existe.");
         }
 
+        bool esSolicitante = await _context.Prestamos.AnyAsync(p =>
+            p.PrestamoId == garante.PrestamoId &&
+            p.SocioSolicitante.PersonaId == garante.PersonaGaranteId);
+
+        if (esSolicitante)
+        {
+            ModelState.AddModelError(
+                nameof(PrestamoGarante.PersonaGaranteId),
+                "El socio solicitante no puede ser garante de su propio préstamo.");
+        }
+
         bool existe = await _context.PrestamoGarantes
             .AnyAsync(g =>
                 g.PrestamoId == garante.PrestamoId &&
@@ -95,6 +106,7 @@ public class PrestamoGarantesController : Controller
                 _context.PrestamoGarantes.Add(garante);
                 await _context.SaveChangesAsync();
 
+                TempData["Mensaje"] = "Garante registrado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -156,6 +168,7 @@ public class PrestamoGarantesController : Controller
             {
                 await _context.SaveChangesAsync();
 
+                TempData["Mensaje"] = "Garante actualizado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -200,6 +213,7 @@ public class PrestamoGarantesController : Controller
         _context.PrestamoGarantes.Remove(garante);
         await _context.SaveChangesAsync();
 
+        TempData["Mensaje"] = "Garante eliminado correctamente.";
         return RedirectToAction(nameof(Index));
     }
 

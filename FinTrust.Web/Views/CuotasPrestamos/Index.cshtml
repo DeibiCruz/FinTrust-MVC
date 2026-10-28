@@ -12,6 +12,14 @@
     </a>
 </p>
 
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No hay cuotas registradas.
+    </div>
+}
+else
+{
 <table class="table">
     <thead>
         <tr>
@@ -48,3 +56,4 @@
         }
     </tbody>
 </table>
+}

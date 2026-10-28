@@ -12,6 +12,14 @@
     </a>
 </p>
 
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No hay préstamos registrados.
+    </div>
+}
+else
+{
 <table class="table">
     <thead>
         <tr>
@@ -32,7 +40,7 @@
                 <td>@item.NumeroPrestamo</td>
                 <td>@item.SocioSolicitante?.CodigoSocio</td>
                 <td>@item.Capital.ToString("N2")</td>
-                <td>@item.TasaInteresAnual.ToString("N2") %</td>
+                <td>@item.TasaInteresAnual.ToString("0.00##") %</td>
                 <td>@item.PlazoMeses meses</td>
                 <td>@item.FechaSolicitud.ToString("dd/MM/yyyy")</td>
                 <td>@item.Estado</td>
@@ -45,3 +53,4 @@
         }
     </tbody>
 </table>
+}

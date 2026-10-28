@@ -12,6 +12,14 @@
     </a>
 </p>
 
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No hay garantes registrados.
+    </div>
+}
+else
+{
 <table class="table">
     <thead>
         <tr>
@@ -56,3 +64,4 @@
         }
     </tbody>
 </table>
+}
